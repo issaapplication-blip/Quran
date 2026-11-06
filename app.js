@@ -1,72 +1,27 @@
-const SURAH_NAMES = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
-const EXPECTED = [7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
-const $ = id => document.getElementById(id);
-let QURAN = [], currentSurah = 1, searchMode = false, installPrompt = null, fontSize = 1.65;
-const KEY = "al-mushaf-bookmark-v1";
-const cleanSearch = s => s.normalize("NFD").replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g,"").replace(/ـ/g,"").trim();
-const esc = s => s.replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-function parseText(raw){
-  const data=Array.from({length:114},()=>[]);
-  for(const line of raw.replace(/^\uFEFF/,"").split(/\r?\n/)){
-    if(!line) continue;
-    const m=/^(\d+)\|(\d+)\|(.*)$/u.exec(line);
-    if(!m) throw new Error("تعذر قراءة أحد أسطر ملف النص.");
-    const s=Number(m[1]),a=Number(m[2]);
-    if(s<1||s>114||a!==data[s-1].length+1||!m[3]) throw new Error("ترتيب أرقام الآيات غير صحيح.");
-    data[s-1].push(m[3]);
-  }
-  if(data.some((s,i)=>s.length!==EXPECTED[i])||data.reduce((n,s)=>n+s.length,0)!==6236) throw new Error("لم يكتمل تحقق السور والآيات.");
-  return data;
-}
-function bookmark(){try{return JSON.parse(localStorage.getItem(KEY)||"null")}catch{return null}}
-function setBookmark(s,a){localStorage.setItem(KEY,JSON.stringify({surah:s,ayah:a}));$("status").textContent="تم حفظ موضع القراءة: "+SURAH_NAMES[s-1]+" — الآية "+a;}
-function render(){
-  searchMode=false;
-  const s=QURAN[currentSurah-1];
-  $("surahSelect").value=String(currentSurah);
-  $("surahTitle").textContent=SURAH_NAMES[currentSurah-1];
-  $("surahMeta").textContent="السورة "+currentSurah+" · "+s.length+" آية";
-  const html=s.map((text,i)=>'<article class="ayah" id="ayah-'+(i+1)+'">'+esc(text)+' <span class="ayah-number">'+(i+1).toLocaleString("ar")+'</span><span class="ayah-actions"><button data-bookmark="'+(i+1)+'" aria-label="حفظ الآية '+(i+1)+'">حفظ الموضع</button></span></article>').join("");
-  $("verses").innerHTML=html;
-  $("resultCount").textContent=s.length.toLocaleString("ar")+" آية";
-  $("status").textContent="تم التحقق من النص: ١١٤ سورة و٦٢٣٦ آية. يمكنك القراءة دون اتصال بعد اكتمال التخزين.";
-}
-function renderSearch(term){
-  const q=cleanSearch(term);
-  if(!q){render();return;}
-  searchMode=true;
-  $("surahTitle").textContent="نتائج البحث";
-  $("surahMeta").textContent="البحث في كامل المصحف";
-  const found=[];
-  QURAN.forEach((s,si)=>s.forEach((text,ai)=>{if(cleanSearch(text).includes(q))found.push({s:si+1,a:ai+1,text})}));
-  $("verses").innerHTML=found.slice(0,250).map(v=>'<article class="ayah">'+esc(v.text)+' <span class="ayah-number">'+v.a.toLocaleString("ar")+'</span><span class="ayah-actions"><button data-goto="'+v.s+':'+v.a+'">'+SURAH_NAMES[v.s-1]+'</button></span></article>').join("") || '<p class="status">لا توجد نتائج مطابقة.</p>';
-  $("resultCount").textContent="عدد النتائج: "+found.length.toLocaleString("ar")+(found.length>250?" · يتم عرض أول ٢٥٠":"");
-}
-async function load(){
-  $("surahSelect").innerHTML=SURAH_NAMES.map((n,i)=>'<option value="'+(i+1)+'">'+(i+1).toLocaleString("ar")+". "+n+'</option>').join("");
-  try{
-    const response=await fetch("./data/quran-uthmani.txt");
-    if(!response.ok)throw new Error("تعذر تحميل ملف النص ("+response.status+").");
-    QURAN=parseText(await response.text());
-    const saved=bookmark();if(saved?.surah>=1&&saved.surah<=114)currentSurah=saved.surah;
-    render();
-  }catch(e){$("status").classList.add("error");$("status").textContent=e.message+" أعد فتح التطبيق مع اتصال بالإنترنت.";}
-}
-$("surahSelect").addEventListener("change",e=>{currentSurah=Number(e.target.value);render();window.scrollTo({top:0,behavior:"smooth"})});
-$("prevBtn").addEventListener("click",()=>{if(currentSurah>1){currentSurah--;render()}});
-$("nextBtn").addEventListener("click",()=>{if(currentSurah<114){currentSurah++;render()}});
-$("bookmarkBtn").addEventListener("click",()=>{const b=bookmark();if(!b){$("status").textContent="لم تحفظ موضع قراءة بعد.";return}currentSurah=b.surah;render();setTimeout(()=>{document.getElementById("ayah-"+b.ayah)?.scrollIntoView({behavior:"smooth",block:"center"})},50)});
-$("searchInput").addEventListener("input",e=>renderSearch(e.target.value));
-$("clearSearch").addEventListener("click",()=>{$("searchInput").value="";render()});
-$("fontDown").addEventListener("click",()=>{fontSize=Math.max(1.1,fontSize-.1);document.documentElement.style.setProperty("--ayah-size",fontSize+"rem")});
-$("fontUp").addEventListener("click",()=>{fontSize=Math.min(2.4,fontSize+.1);document.documentElement.style.setProperty("--ayah-size",fontSize+"rem")});
-$("verses").addEventListener("click",e=>{
- const b=e.target.closest("button");if(!b)return;
- if(b.dataset.bookmark){setBookmark(currentSurah,Number(b.dataset.bookmark));return}
- if(b.dataset.goto){const [s,a]=b.dataset.goto.split(":").map(Number);currentSurah=s;$("searchInput").value="";render();setTimeout(()=>document.getElementById("ayah-"+a)?.scrollIntoView({behavior:"smooth",block:"center"}),50)}
-});
-window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();installPrompt=e;$("installBtn").hidden=false});
-$("installBtn").addEventListener("click",async()=>{if(!installPrompt)return;installPrompt.prompt();await installPrompt.userChoice;installPrompt=null;$("installBtn").hidden=true});
-window.addEventListener("appinstalled",()=>{$("installBtn").hidden=true});
-if("serviceWorker" in navigator && location.protocol.startsWith("http"))window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}));
-load();
+const N=["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
+const C=[7,286,200,176,120,165,206,75,129,109,123,111,43,52,99,128,111,110,98,135,112,78,118,64,77,227,93,88,69,60,34,30,73,54,45,83,182,88,75,85,54,53,89,59,37,35,38,29,18,45,60,49,62,55,78,96,29,22,24,13,14,11,11,18,12,12,30,52,52,44,28,28,20,56,40,31,50,40,46,42,29,19,36,25,22,17,19,26,30,20,15,21,11,8,8,19,5,8,8,11,11,8,3,9,5,4,7,3,6,3,5,4,5,6];
+const $=x=>document.getElementById(x),ar=x=>Number(x).toLocaleString("ar"),safe=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+let Q=[],M,A,page=1,size=1.72,cat="morning",cnt=0,target=33,today=0;
+const K=(s,a)=>s*1000+a,idx=(s,a)=>Q.slice(0,s-1).reduce((n,x)=>n+x.length,0)+a-1;
+function parse(t){let a=Array.from({length:114},()=>[]);for(let l of t.replace(/^\uFEFF/,"").split(/\r?\n/)){if(!l)continue;let m=/^(\d+)\|(\d+)\|(.*)$/u.exec(l);if(!m||+m[2]!==a[+m[1]-1]?.length+1)throw Error("خطأ في تسلسل النص");a[+m[1]-1].push(m[3])}if(a.some((x,i)=>x.length!==C[i])||a.flat().length!==6236)throw Error("لم يكتمل فحص السور والآيات");return a}
+function pageFor(s,a){let k=K(s,a),lo=0,hi=603;while(lo<hi){let m=Math.ceil((lo+hi)/2),x=M.pages[m];if(K(x.sura,x.aya)<=k)lo=m;else hi=m-1}return lo+1}
+function render(){let st=M.pages[page-1],en=M.pages[page]||{sura:115,aya:1},from=idx(st.sura,st.aya),to=en.sura===115?6236:idx(en.sura,en.aya),out=[],last=0;for(let i=from;i<to;i++){let s=1,j=i;while(j>=Q[s-1].length){j-=Q[s-1].length;s++}let a=j+1;if(s!==last){if(last)out.push("</div>");out.push('<div class="surah-block"><h3>'+N[s-1]+'</h3>');last=s;if(a===1&&s!==1&&s!==9)out.push('<p class="basmala">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>')}out.push(safe(Q[s-1][j])+' <span class="mark">'+ar(a)+'</span> ')}if(last)out.push("</div>");$("pageText").innerHTML=out.join("");$("pageSurah").textContent=N[st.sura-1];let z=1;for(let j of M.juz){if(K(j.surah,j.ayah)<=K(st.sura,st.aya))z=j.juz;else break}$("pageJuz").textContent="الجزء "+ar(z);$("pageNum").textContent=ar(page);$("page").value=page;$("range").value=page;$("prev").disabled=page===1;$("next").disabled=page===604}
+function go(p){page=Math.max(1,Math.min(604,+p));render();window.scrollTo({top:0,behavior:"smooth"})}
+function tab(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.id===t));document.querySelectorAll("nav button").forEach(x=>x.classList.toggle("active",x.dataset.tab===t))}
+function surahs(q=""){$("surahList").innerHTML=N.map((n,i)=>({n,i})).filter(x=>!q||x.n.includes(q)||String(x.i+1)===q).map(x=>'<button data-s="'+(x.i+1)+'"><b>'+ar(x.i+1)+'. '+x.n+'</b><small>'+ar(C[x.i])+' آية</small></button>').join("")}
+function azkar(){let d=new Date().toISOString().slice(0,10),p={};try{p=JSON.parse(localStorage.getItem("azkar-progress")||"{}")}catch{}if(p.day!==d)p={day:d,c:{}};$("azkarList").innerHTML=A.filter(x=>x.type===0||(cat==="morning"?x.type===1:x.type===2)).map(x=>{let n=p.c?.[x.id]||0;return '<article class="zikr"><small>التكرار '+ar(x.count)+' · ذكر '+ar(x.id)+'</small><p>'+safe(x.text)+'</p><div><span>'+safe(x.source)+'</span><button data-z="'+x.id+'">'+ar(Math.min(n,x.count))+' / '+ar(x.count)+' · عدّ</button></div><i><b style="width:'+Math.min(100,n/x.count*100)+'%"></b></i></article>'}).join("")}
+function saveTas(){localStorage.setItem("tasbih",JSON.stringify({day:new Date().toISOString().slice(0,10),cnt,target,today,dhikr:$("dhikr").value}))}
+function loadTas(){let v={};try{v=JSON.parse(localStorage.getItem("tasbih")||"{}")}catch{}let d=new Date().toISOString().slice(0,10);today=v.day===d?(v.today||0):0;cnt=v.cnt||0;target=v.target??33;$("count").textContent=ar(cnt);$("target").value=target;$("dhikr").value=v.dhikr||"سُبْحَانَ اللَّهِ";$("today").textContent="إنجاز اليوم: "+ar(today)+" تسبيحة"}
+async function init(){try{let [q,p,a]=await Promise.all(["quran-uthmani.txt","mushaf-pages.json","adhkar-morning-evening.json"].map(x=>fetch("./data/"+x)));if(!q.ok||!p.ok||!a.ok)throw Error("تعذر تحميل ملفات المحتوى");Q=parse(await q.text());M=await p.json();A=await a.json();if(M.pages.length!==604||M.juz.length!==30)throw Error("بيانات الصفحات ناقصة");$("page").innerHTML=Array.from({length:604},(_,i)=>'<option value="'+(i+1)+'">صفحة '+ar(i+1)+'</option>').join("");$("surah").innerHTML=N.map((x,i)=>'<option value="'+(i+1)+'">'+ar(i+1)+'. '+x+'</option>').join("");$("juz").innerHTML=M.juz.map(x=>'<option value="'+x.juz+'">الجزء '+ar(x.juz)+'</option>').join("");let b=JSON.parse(localStorage.getItem("mushaf-bookmark")||"null");page=b?.page||1;render();surahs();azkar();loadTas();$("status").textContent="تم التحقق: ١١٤ سورة، ٦٢٣٦ آية، ٦٠٤ صفحات، ٣٠ جزءاً."}catch(e){$("status").textContent=e.message;$("status").classList.add("error")}}
+document.querySelectorAll("nav button").forEach(b=>b.onclick=()=>tab(b.dataset.tab));$("page").onchange=e=>go(e.target.value);$("range").oninput=e=>go(e.target.value);$("prev").onclick=()=>go(page-1);$("next").onclick=()=>go(page+1);$("surah").onchange=e=>{go(pageFor(+e.target.value,1));tab("quran")};$("juz").onchange=e=>{let j=M.juz.find(x=>x.juz===+e.target.value);go(pageFor(j.surah,j.ayah))};$("save").onclick=()=>{let s=M.pages[page-1];localStorage.setItem("mushaf-bookmark",JSON.stringify({page,sur a:s.sura,ayah:s.aya}));$("status").textContent="حُفظ موضع القراءة"};
+$("smaller").onclick=()=>{size=Math.max(1.2,size-.1);document.documentElement.style.setProperty("--quran-size",size+"rem")};$("larger").onclick=()=>{size=Math.min(2.6,size+.1);document.documentElement.style.setProperty("--quran-size",size+"rem")};
+document.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>{document.body.dataset.theme=b.dataset.theme;document.querySelectorAll("[data-theme]").forEach(x=>x.classList.toggle("active",x===b))});
+$("findToggle").onclick=()=>{$("searchBox").hidden=!$("searchBox").hidden};$("clear").onclick=()=>{$("query").value="";$("results").hidden=true};
+$("query").oninput=e=>{let q=e.target.value.trim();if(!q){$("results").hidden=true;return}let hits=[];Q.forEach((s,i)=>s.forEach((v,j)=>{if(v.includes(q))hits.push({s:i+1,a:j+1,t:v})}));$("results").hidden=false;$("results").innerHTML=hits.slice(0,60).map(x=>'<button data-hit="'+x.s+':'+x.a+'">'+N[x.s-1]+' '+ar(x.a)+' — '+safe(x.t)+'</button>').join("")||"لا توجد نتائج"};
+$("results").onclick=e=>{let b=e.target.closest("[data-hit]");if(!b)return;let [s,a]=b.dataset.hit.split(":").map(Number);go(pageFor(s,a));tab("quran")};
+$("filter").oninput=e=>surahs(e.target.value);$("surahList").onclick=e=>{let b=e.target.closest("[data-s]");if(b){go(pageFor(+b.dataset.s,1));tab("quran")}};
+document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));azkar()});
+$("azkarList").onclick=e=>{let b=e.target.closest("[data-z]");if(!b)return;let d=new Date().toISOString().slice(0,10),p={};try{p=JSON.parse(localStorage.getItem("azkar-progress")||"{}")}catch{}if(p.day!==d)p={day:d,c:{}};p.c=p.c||{};p.c[b.dataset.z]=(p.c[b.dataset.z]||0)+1;localStorage.setItem("azkar-progress",JSON.stringify(p));azkar()};
+$("dhikr").onchange=e=>{$("custom").hidden=e.target.value!=="custom";saveTas()};$("custom").oninput=saveTas;$("target").onchange=e=>{target=+e.target.value;saveTas()};$("tap").onclick=()=>{cnt++;today++;$("count").textContent=ar(cnt);$("today").textContent="إنجاز اليوم: "+ar(today)+" تسبيحة";$("message").textContent=target&&cnt===target?"اكتمل الهدف، بارك الله فيك.":"تقبل الله ذكرك.";if($("vibrate").checked&&navigator.vibrate)navigator.vibrate(22);saveTas()};$("undo").onclick=()=>{if(cnt){cnt--;today=Math.max(0,today-1);$("count").textContent=ar(cnt);$("today").textContent="إنجاز اليوم: "+ar(today)+" تسبيحة";saveTas()}};$("reset").onclick=()=>{cnt=0;$("count").textContent="٠";saveTas();$("message").textContent="تم تصفير العداد."};
+window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();window._prompt=e;$("install").hidden=false});$("install").onclick=async()=>{if(window._prompt){window._prompt.prompt();await window._prompt.userChoice;window._prompt=null;$("install").hidden=true}};
+if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});init();

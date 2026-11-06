@@ -1,0 +1,1 @@
+Seen-Arabic/Morning-And-Evening-Adhkar-DB, ar.json, MIT License. Arabic content, repetition and source references retained. https://github.com/Seen-Arabic/Morning-And-Evening-Adhkar-DB

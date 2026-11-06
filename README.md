@@ -1,23 +1,7 @@
-# المصحف الشريف | Al Mushaf Al Shareef
+# المصحف الشريف
+مصحف ويب مستقل بترقيم مصحف المدينة 604 صفحة، 30 جزءاً، فهرس السور، بحث، خلفيات ورقية وكريمية وليلية، أذكار الصباح والمساء من Seen-Arabic (MIT)، وسبحة إلكترونية تحفظ العدد محلياً.
 
-تطبيق قراءة مستقل للقرآن الكريم بالرسم العثماني، يعمل كتطبيق ويب تقدمي (PWA) ويدعم التثبيت والعمل دون اتصال بعد أول تحميل.
-
-## الخصائص
-- النص القرآني كاملاً: 114 سورة و6236 آية.
-- بحث في كامل الآيات.
-- اختيار السورة والتنقل بين السور.
-- حفظ موضع القراءة على الجهاز.
-- التحكم بحجم الخط.
-- تخزين التطبيق والنص للاستخدام دون اتصال.
-
-## تجربة النسخة
-افتح رابط المعاينة، انتظر ظهور رسالة اكتمال التحقق، ثم استخدم زر «تثبيت التطبيق» من المتصفح المتوافق. على iPhone/iPad استخدم مشاركة > إضافة إلى الشاشة الرئيسية.
-
-## مصدر النص
-نص Tanzil Uthmani v1.1. يُحفظ في الملف الأصلي بصفوف `سورة|آية|نص`، ولا تعدّل الواجهة نص الآيات أو تشكيلها. اقرأ [SOURCE.md](./SOURCE.md) و[إشعار Tanzil](./data/TANZIL-NOTICE.txt).
-
-- الموقع الرسمي: https://tanzil.net/
-- شروط الترخيص: https://tanzil.net/docs/Text_License
-
-## ملاحظات المراجعة
-هذا فرع معاينة وليس فرع الإنتاج. لا يتم تفعيل GitHub Pages أو تعديل `main` في هذه الخطوة.
+Quran text: Tanzil Uthmani v1.1 (see SOURCE.md and data/TANZIL-NOTICE.txt).
+Pagination metadata: Mushaf-Learning/quran-text, metadata/pages.json and quran-data.xml.
+Adhkar: Seen-Arabic/Morning-And-Evening-Adhkar-DB, MIT. See data/ADHKAR-SOURCE.txt.
+This project is independent of RAFIQ and does not connect to RAFIQ Supabase.
