@@ -1,0 +1,19 @@
+:root{color-scheme:light;--green:#174f3b;--green2:#21654d;--gold:#c9a45c;--ink:#24332c;--muted:#6c7d73;--paper:#fbfaf6;--line:#e6e8df}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif}
+.top{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:.75rem max(1rem,calc((100vw - 980px)/2));background:#fffefaee;border-bottom:1px solid var(--line);backdrop-filter:blur(12px)}
+.brand{display:flex;align-items:center;gap:.7rem}.brand img{width:46px;height:46px}.brand h1{font-size:1.15rem;margin:0;color:var(--green)}.brand p{font-size:.76rem;color:var(--muted);margin:.15rem 0 0}
+button,select,input{font:inherit}.install{border:0;border-radius:999px;background:var(--green);color:white;padding:.65rem 1rem;font-weight:700}
+main{max-width:980px;margin:auto;padding:1.2rem 1rem 3rem}.intro{text-align:center;padding:2.4rem 1rem 1.8rem;background:linear-gradient(135deg,#f0f4ec,#fffefa);border:1px solid #e8eadf;border-radius:24px}
+.eyebrow{color:var(--gold);font-size:1.2rem;margin:0 0 .7rem}.intro h2{color:var(--green);font-family:serif;font-size:clamp(1.8rem,5vw,2.7rem);margin:.2rem 0}.sub{color:var(--muted);font-size:.9rem;margin:.8rem 0 0}
+.toolbar{display:flex;align-items:end;gap:.55rem;flex-wrap:wrap;margin:1.2rem 0}.select-wrap{display:grid;gap:.35rem;flex:1;min-width:180px;color:var(--muted);font-size:.82rem}
+select,input{min-height:44px;border:1px solid var(--line);border-radius:12px;background:white;padding:.6rem .8rem;color:var(--ink);min-width:0}
+.tool,.font-tools button{min-height:42px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--green);padding:.5rem .8rem;cursor:pointer}.tool:active,.font-tools button:active{background:#edf3ed}
+.searchbox{display:flex;gap:.5rem}.searchbox input{flex:1;width:100%}
+.reading-head{display:flex;align-items:center;justify-content:space-between;margin:1.5rem 0 .8rem;padding:.9rem 1rem;background:#fff;border:1px solid var(--line);border-radius:16px}
+.reading-head h2{margin:.1rem 0;color:var(--green);font-size:1.35rem}.reading-head span{font-size:.8rem;color:var(--muted)}.font-tools{display:flex;gap:.4rem}.font-tools button{width:42px;font-size:1.2rem}
+.status{padding:.8rem 1rem;background:#f1f4ed;border-radius:12px;color:var(--green);font-size:.9rem;margin:1rem 0}.status.error{background:#fff0ed;color:#9e3223}
+.verses{display:grid;gap:.6rem}.ayah{position:relative;padding:1rem 1.1rem;background:#fff;border:1px solid var(--line);border-radius:16px;font-family:"Amiri Quran","Noto Naskh Arabic","Traditional Arabic",serif;font-size:var(--ayah-size,1.65rem);line-height:2.15;text-align:justify;overflow-wrap:anywhere}
+.ayah mark{background:#f8edc9;border-radius:4px}.ayah-number{display:inline-flex;vertical-align:middle;align-items:center;justify-content:center;margin-inline:.35rem;width:1.8rem;height:1.8rem;border:1px solid #d5c18c;border-radius:50%;font-family:system-ui;font-size:.72rem;color:var(--green);white-space:nowrap}
+.ayah-actions{display:inline-flex;vertical-align:middle;gap:.25rem;margin-inline:.2rem}.ayah-actions button{border:1px solid var(--line);background:#fff;border-radius:9px;padding:.15rem .45rem;font-size:.72rem;color:var(--muted);cursor:pointer}
+.result-count{text-align:center;color:var(--muted);font-size:.85rem}footer{max-width:980px;margin:auto;padding:1.2rem 1rem 2rem;border-top:1px solid var(--line);text-align:center;color:var(--muted);font-size:.78rem;line-height:1.8}footer a{color:var(--green)}.offline{color:var(--green)}
+@media(max-width:560px){.top{padding:.65rem .8rem}.brand img{width:40px;height:40px}.brand h1{font-size:1rem}.brand p{font-size:.68rem}.toolbar .tool{flex:1}.intro{padding:1.7rem .7rem}.ayah{padding:.8rem .75rem}.reading-head h2{font-size:1.15rem}}

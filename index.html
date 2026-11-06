@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#174f3b">
+<meta name="description" content="المصحف الشريف — قراءة القرآن الكريم بالرسم العثماني، مع البحث والعلامات والعمل دون اتصال.">
+<title>المصحف الشريف | Al Mushaf Al Shareef</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./assets/icon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./styles.css">
+<script defer src="./app.js"></script>
+</head>
+<body>
+<header class="top">
+  <div class="brand"><img src="./assets/icon.svg" alt=""><div><h1>المصحف الشريف</h1><p>قراءة القرآن الكريم بالرسم العثماني</p></div></div>
+  <button id="installBtn" class="install" hidden>تثبيت التطبيق</button>
+</header>
+<main>
+  <section class="intro">
+    <p class="eyebrow">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+    <h2>وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا</h2>
+    <p class="sub">نصّ عثماني من مشروع Tanzil · ١١٤ سورة · ٦٢٣٦ آية</p>
+  </section>
+  <section class="toolbar" aria-label="أدوات القراءة">
+    <label class="select-wrap"><span>السورة</span><select id="surahSelect" aria-label="اختر السورة"></select></label>
+    <button id="prevBtn" class="tool" aria-label="السورة السابقة">السابق</button>
+    <button id="nextBtn" class="tool" aria-label="السورة التالية">التالي</button>
+    <button id="bookmarkBtn" class="tool">آخر موضع محفوظ</button>
+  </section>
+  <section class="searchbox">
+    <input id="searchInput" type="search" placeholder="ابحث في آيات القرآن..." aria-label="البحث في القرآن">
+    <button id="clearSearch" class="tool">مسح</button>
+  </section>
+  <div class="reading-head"><div><span id="surahMeta">جارٍ تحميل النص...</span><h2 id="surahTitle">المصحف الشريف</h2></div><div class="font-tools"><button id="fontDown" aria-label="تصغير الخط">−</button><button id="fontUp" aria-label="تكبير الخط">+</button></div></div>
+  <div id="status" class="status" role="status" aria-live="polite">يتم تحميل النص القرآني والتحقق من عدد الآيات...</div>
+  <section id="verses" class="verses" aria-label="آيات السورة"></section>
+  <p id="resultCount" class="result-count"></p>
+</main>
+<footer>
+  <p>النص القرآني: <a href="https://tanzil.net/" target="_blank" rel="noopener">مشروع Tanzil</a> — Tanzil Quran Text (Uthmani, Version 1.1).</p>
+  <p>يسمح ترخيص المصدر بنسخ النص وتوزيعه حرفياً دون تغيير، مع إبقاء الإسناد ورابط المصدر.</p>
+  <p class="offline">يدعم العمل دون اتصال بعد تحميل التطبيق والنص لأول مرة.</p>
+</footer>
+</body>
+</html>

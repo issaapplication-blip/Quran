@@ -1,0 +1,22 @@
+{
+  "id": "./",
+  "name": "المصحف الشريف | Al Mushaf Al Shareef",
+  "short_name": "المصحف الشريف",
+  "description": "قراءة القرآن الكريم بالرسم العثماني دون اتصال",
+  "lang": "ar",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fbfaf6",
+  "theme_color": "#174f3b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "./assets/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
