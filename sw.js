@@ -1,5 +1,5 @@
-const CACHE="mushaf-review-v1";
-const CORE=["./","./index.html","./styles.css","./app.js","./manifest.webmanifest","./assets/icon.svg","./data/quran-uthmani.txt","./data/TANZIL-NOTICE.txt"];
+const CACHE="mushaf-review-v2";
+const CORE=["./","./index.html","./styles.css","./app.js","./manifest.webmanifest","./assets/icon.svg","./assets/icon-192.png","./assets/icon-512.png","./data/quran-uthmani.txt","./data/TANZIL-NOTICE.txt"];
 self.addEventListener("install",event=>event.waitUntil((async()=>{const c=await caches.open(CACHE);await c.addAll(CORE);await self.skipWaiting()})()));
 self.addEventListener("activate",event=>event.waitUntil((async()=>{for(const k of await caches.keys())if(k!==CACHE)await caches.delete(k);await self.clients.claim()})()));
 self.addEventListener("fetch",event=>{const u=new URL(event.request.url);if(event.request.method!=="GET"||u.origin!==location.origin)return;event.respondWith((async()=>{const cached=await caches.match(event.request);if(cached)return cached;try{const response=await fetch(event.request);if(response.ok)(await caches.open(CACHE)).put(event.request,response.clone());return response}catch{return cached||Response.error()}})())});
