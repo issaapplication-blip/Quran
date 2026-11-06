@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "esbuild src/app.js --bundle --format=esm --minify --outfile=dist/app.bundle.js",
-    "check": "node --check src/app.js && node --check src/pages/quran.js && node --check src/pages/azkar.js && node --check src/pages/tasbeeh.js"
+    "check": "node --check src/app.js && node --check src/components/topbar.js && node --check src/components/bottomnav.js && node --check src/lib/settings.js && node --check src/pages/quran.js && node --check src/pages/azkar.js && node --check src/pages/tasbeeh.js && node --check src/pages/qibla.js && node --check src/pages/prayer.js && node --check sw.js",
+    "build": "esbuild src/app.js --bundle --format=esm --minify --outfile=dist/app.bundle.js"
   },
   "devDependencies": {
     "esbuild": "^0.25.0"

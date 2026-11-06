@@ -1,6 +1,13 @@
-Quran text: Tanzil Uthmani v1.1 https://tanzil.net/ ; verbatim only, see data/TANZIL-NOTICE.txt.
-Pagination: Madinah 604-page map from https://github.com/Mushaf-Learning/quran-text metadata/pages.json and quran-data.xml.
-Adhkar: Arabic morning/evening dataset from https://github.com/Seen-Arabic/Morning-And-Evening-Adhkar-DB (MIT); per-item source references retained.
+# مصادر المصحف الشريف
 
+## النص القرآني
+Tanzil Quran Text (Uthmani, Version 1.1), https://tanzil.net/ . يُحفظ النص داخل data/quran-uthmani.txt كما ورد في المصدر بصيغة سورة|آية|نص. يجب إبقاء النص حرفياً وإسناده إلى Tanzil؛ تفاصيل شروط الاستخدام داخل data/TANZIL-NOTICE.txt.
 
-Additional adhkar: selected post-prayer and before-sleep remembrances with hadith references stored per item. Quranic passages (Ayat al-Kursi and the last two verses of Al-Baqarah) are taken directly from the bundled Tanzil text, not retyped.
+## ترقيم الصفحات
+بيانات صفحات مصحف المدينة، 604 صفحة و30 جزءاً، محفوظة في data/mushaf-pages.json. يحتوي الملف على نقاط بدء الصفحات ومواقع الأجزاء. يحسب التطبيق نهاية الصفحة من بداية الصفحة التالية. لا يعيد التطبيق توليد نص الآيات اعتماداً على هذه البيانات.
+
+## الأذكار
+قاعدة Seen-Arabic/Morning-And-Evening-Adhkar-DB (MIT) للأذكار الأصلية، مع الإحالات النصية التي تأتي مع عناصر القاعدة. توجد إضافات مختارة بعد الصلاة وقبل النوم وعند الاستيقاظ والمسجد والأدعية، ومراجعها مبينة في data/ADHKAR-SOURCE.txt وفي كل عنصر داخل JSON عند توفرها.
+
+## الخطوط
+التطبيق لا يجلب الخطوط من الويب ولا يضمّن ملف خط في هذا الفرع. يستخدم عائلات Amiri Quran/Amiri وTajawal المثبتة محلياً عند وجودها، مع بدائل عربية نظامية.
