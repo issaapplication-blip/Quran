@@ -1,0 +1,13 @@
+{
+  "name": "al-mushaf-al-shareef-pwa",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/app.js --bundle --format=esm --minify --outfile=dist/app.bundle.js",
+    "check": "node --check src/app.js && node --check src/pages/quran.js && node --check src/pages/azkar.js && node --check src/pages/tasbeeh.js"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

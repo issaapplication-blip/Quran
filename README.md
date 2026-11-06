@@ -1,11 +1,12 @@
-# المصحف الشريف
-مصحف ويب مستقل بترقيم مصحف المدينة 604 صفحة، 30 جزءاً، فهرس السور، بحث، خلفيات ورقية وكريمية وليلية، أذكار الصباح والمساء من Seen-Arabic (MIT)، وسبحة إلكترونية تحفظ العدد محلياً.
+# المصحف الشريف | Quran PWA
 
-Quran text: Tanzil Uthmani v1.1 (see SOURCE.md and data/TANZIL-NOTICE.txt).
-Pagination metadata: Mushaf-Learning/quran-text, metadata/pages.json and quran-data.xml.
-Adhkar: Seen-Arabic/Morning-And-Evening-Adhkar-DB, MIT. See data/ADHKAR-SOURCE.txt.
-This project is independent of RAFIQ and does not connect to RAFIQ Supabase.
+تطبيق ويب تقدمي مستقل بواجهة عربية RTL.
 
+- المصحف: 604 صفحات بمواقع بداية الصفحات الموثقة، مع فهرس السور والأجزاء والبحث ووضع التمرير.
+- الأذكار: الصباح والمساء وبعد الصلاة وقبل النوم والاستيقاظ والمسجد والأدعية، مع العدد والمصدر.
+- السبحة: عداد ذكي وأهداف وتراجع وتصفير واهتزاز وحفظ محلي.
+- القبلة والصلاة: واجهتان قيد التجهيز ولا تعرضان بيانات غير موثقة.
 
-## أذكار إضافية
-أُضيفت أذكار بعد الصلاة وأذكار النوم مع تخريج مختصر لكل نص. تتضمن مجموعة النوم آية الكرسي وآخر آيتين من سورة البقرة مأخوذتين حرفياً من ملف Tanzil نفسه، مع إحالات الأحاديث في بيانات كل ذكر.
+الخطوط مفضلة محلياً من Amiri Quran / Amiri وTajawal عند توفرها في الجهاز؛ لا توجد Google Fonts أو CDN. لا توجد مكتبات تشغيل، وesbuild أداة تطوير فقط.
+
+راجع data/README.md وSOURCE.md لإسناد النص والبيانات. المشروع مستقل عن RAFIQ ولا يتصل بـ Supabase.

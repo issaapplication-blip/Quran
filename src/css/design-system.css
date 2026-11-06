@@ -1,0 +1,10 @@
+:root{
+ --green:#174a38;--green2:#24694f;--gold:#b8944e;--gold-soft:#e7d9b2;
+ --ink:#3d3428;--muted:#887b66;--line:#e2d6b9;--paper:#eee7d4;--mushaf:#f7f0dc;--surface:#fbf5e7;
+ --green-soft:#e9e4d1;--shadow:0 10px 28px rgba(53,45,24,.08);--radius:18px;--quran-size:1.82rem;
+ --font-ui:"Tajawal","Noto Sans Arabic","Tahoma",sans-serif;
+ --font-quran:"Amiri Quran","Amiri","Noto Naskh Arabic","Traditional Arabic",serif;
+}
+:root[data-theme="light"]{--ink:#26332b;--muted:#728076;--line:#e6e8df;--paper:#f7f8f3;--mushaf:#fffdf5;--surface:#fff;--green-soft:#e8efe6}
+:root[data-theme="sepia"]{--ink:#3d3428;--muted:#887b66;--line:#e2d6b9;--paper:#eee7d4;--mushaf:#f7f0dc;--surface:#fbf5e7;--green-soft:#e9e4d1}
+:root[data-theme="dark"]{color-scheme:dark;--ink:#eee9dc;--muted:#aaa18e;--line:#393b32;--paper:#171d19;--mushaf:#20251e;--surface:#222920;--green:#9bc5a7;--green2:#b2d8bc;--green-soft:#2b3b30;--gold:#d4b66f;--gold-soft:#52452a;--shadow:0 10px 28px rgba(0,0,0,.22)}

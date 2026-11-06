@@ -1,0 +1,4 @@
+/* Local-device fonts only. No external stylesheet, web font, or CDN request. */
+@font-face{font-family:"Mushaf Amiri";src:local("Amiri Quran"),local("Amiri");font-display:swap}
+@font-face{font-family:"Mushaf Tajawal";src:local("Tajawal"),local("Noto Sans Arabic");font-display:swap}
+:root{--font-quran:"Mushaf Amiri","Amiri Quran","Amiri","Noto Naskh Arabic","Traditional Arabic",serif;--font-ui:"Mushaf Tajawal","Tajawal","Noto Sans Arabic","Tahoma",sans-serif}

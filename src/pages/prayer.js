@@ -1,0 +1,1 @@
+export function renderPrayer(){return '<section class="page-hero"><p class="eyebrow">مواقيت العبادة</p><h2>الصلاة</h2><p>تنظيم أوقات العبادة والتذكير بها.</p></section><section class="panel coming-card"><div class="coming-icon">☼</div><h3>مواقيت الصلاة</h3><p class="muted">هذا القسم قيد التجهيز. لن نعرض مواقيت غير موثقة أو نطلب موقعك دون موافقة واضحة.</p></section>';}
