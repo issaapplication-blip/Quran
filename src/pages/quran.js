@@ -32,8 +32,8 @@ function renderPage(){
   if(v.s!==last){out.push('<div class="surah-heading">'+N[v.s-1]+'</div>');last=v.s;}
   out.push('<span class="ayah-text">'+esc(v.text)+'</span> <span class="ayah-medallion">۞'+ar(v.a)+'۞</span> ');
  }
- const next=pages[page]?.ref;
- return '<article class="mushaf-page"><div class="mushaf-page-head"><span>'+esc(N[p.ref.s-1])+'</span><span>الجزء '+ar(p.juz)+'</span><span>صفحة '+ar(page)+'</span></div><div class="mushaf-page-body">'+out.join("")+'</div><div class="page-footer"><span>المصحف الشريف</span><span>'+ar(p.ref.s)+':'+ar(p.ref.a)+' — '+(next?ar(next.s)+':'+ar(next.a-1):'114:6')+'</span></div></article>';
+ const lastVerse=verses[end-1];
+ return '<article class="mushaf-page"><div class="mushaf-page-head"><span>'+esc(N[p.ref.s-1])+'</span><span>الجزء '+ar(p.juz)+'</span><span>صفحة '+ar(page)+'</span></div><div class="mushaf-page-body">'+out.join("")+'</div><div class="page-footer"><span>المصحف الشريف</span><span>'+ar(p.ref.s)+':'+ar(p.ref.a)+' — '+ar(lastVerse.s)+':'+ar(lastVerse.a)+'</span></div></article>';
 }
 function renderContinuous(){return '<div class="continuous-wrap">'+surahs[surah-1].map(v=>'<article class="continuous-ayah"><div class="verse-meta"><span>'+esc(N[surah-1])+'</span><span>الآية '+ar(v.a)+'</span></div>'+esc(v.text)+' <span class="ayah-medallion">۞'+ar(v.a)+'۞</span></article>').join("")+'</div>';}
 function renderSearch(){
