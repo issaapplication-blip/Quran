@@ -1,1 +1,4 @@
 Seen-Arabic/Morning-And-Evening-Adhkar-DB, ar.json, MIT License. Arabic content, repetition and source references retained. https://github.com/Seen-Arabic/Morning-And-Evening-Adhkar-DB
+
+
+Selected post-prayer and before-sleep adhkar are separately curated with the source references shown on each item in the app; Quranic excerpts are sourced from the bundled Tanzil Uthmani text.
