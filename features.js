@@ -310,7 +310,7 @@
       renderPrayer(body.data, false);
     } catch (error) {
       if (cached) {
-        const sameDay = cached.dateKey === new Date().toLocaleDateString("en-CA");
+        const now = new Date();\n        const todayKey = [String(now.getDate()).padStart(2, "0"), String(now.getMonth() + 1).padStart(2, "0"), now.getFullYear()].join("-");\n        const sameDay = cached.dateKey === todayKey;
         renderPrayer(cached.data, true);
         status.textContent += " · تعذر التحديث: " + error.message +
           (sameDay ? "" : " · تاريخ النسخة المحفوظة مختلف عن اليوم.");
