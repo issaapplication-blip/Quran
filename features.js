@@ -1,16 +1,341 @@
-(()=>{"use strict";
-const $=id=>document.getElementById(id);
-const menu=$("moreMenu"),panel=$("morePanel");
-function showTab(id){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.id===id));document.querySelectorAll('nav button[data-tab]').forEach(x=>x.classList.toggle("active",x.dataset.tab===id));panel.hidden=true;menu.setAttribute("aria-expanded","false");}
-menu.addEventListener("click",()=>{panel.hidden=!panel.hidden;menu.setAttribute("aria-expanded",String(!panel.hidden));});
-panel.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>showTab(b.dataset.tab)));
-const KAABA={lat:21.4225,lon:39.8262};let userCoords=null,qiblaAngle=null,heading=0;
-function bearing(lat,lon){const p=Math.PI/180,a=Math.atan2(Math.sin((KAABA.lon-lon)*p),Math.cos(lat*p)*Math.tan(KAABA.lat*p)-Math.sin(lat*p)*Math.cos((KAABA.lon-lon)*p));return (a/p+360)%360;}
-function compassRender(){if(qiblaAngle===null)return;const relative=(qiblaAngle-heading+360)%360;$("qiblaMark").style.transform=`translate(-50%,-50%) rotate(${relative}deg) translateY(-104px)`;$("compass").querySelector(".compass-needle").style.transform=`rotate(${heading}deg)`;$("qiblaBearing").textContent=`اتجاه القبلة من موقعك: ${qiblaAngle.toFixed(1)}° من الشمال · حرّك الهاتف حتى يشير المؤشر إلى القبلة.`;}
-$("locateQibla").addEventListener("click",()=>{if(!navigator.geolocation){$("qiblaBearing").textContent="المتصفح لا يدعم تحديد الموقع.";return;}$("qiblaBearing").textContent="جارٍ تحديد موقعك...";navigator.geolocation.getCurrentPosition(pos=>{userCoords={lat:pos.coords.latitude,lon:pos.coords.longitude};qiblaAngle=bearing(userCoords.lat,userCoords.lon);compassRender();},err=>{$("qiblaBearing").textContent=err.code===1?"لم تسمح بالوصول للموقع. يمكنك تفعيل الإذن من إعدادات المتصفح.":"تعذر تحديد الموقع؛ تحقق من GPS وحاول مجدداً."},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});});
-function orientation(e){if(typeof e.webkitCompassHeading==="number")heading=e.webkitCompassHeading;else if(typeof e.alpha==="number")heading=(360-e.alpha)%360;else return;compassRender();}
-$("enableCompass").addEventListener("click",async()=>{try{if(typeof DeviceOrientationEvent==="undefined")throw Error("مستشعر البوصلة غير مدعوم في هذا الهاتف أو المتصفح.");if(typeof DeviceOrientationEvent.requestPermission==="function"){const p=await DeviceOrientationEvent.requestPermission();if(p!=="granted")throw Error("لم يتم منح إذن مستشعر الاتجاه.");}window.addEventListener("deviceorientation",orientation,true);$("qiblaBearing").textContent="تم تفعيل مستشعر الاتجاه. إذا لم يتحرك المؤشر فقد لا يحتوي الهاتف على بوصلة إلكترونية."; }catch(e){$("qiblaBearing").textContent=e.message||"تعذر تشغيل البوصلة. استخدم الموقع واتجاه القبلة الرقمي.";}});
-const cacheKey="mushaf-prayer-cache-v1",names={Fajr:"الفجر",Sunrise:"الشروق",Dhuhr:"الظهر",Asr:"العصر",Maghrib:"المغرب",Isha:"العشاء"};
-function showPrayer(data,stale){const t=data.timings;$("prayerDate").textContent=`${data.date?.readable||""} · ${data.meta?.timezone||""}${stale?" · آخر بيانات محفوظة (غير محدّثة)":""}`;$("prayerTimes").innerHTML=Object.entries(names).map(([k,n])=>`<div class="prayer-time"><span>${n}</span><strong>${String(t[k]||"—").split(" ")[0]}</strong></div>`).join("");}
-$("loadPrayer").addEventListener("click",async()=>{const city=$("prayerCity").value.trim(),country=$("prayerCountry").value.trim(),choice=$("prayerMethod").value;const c=country.toLowerCase();const gulf=/saudi|السعود|uae|emirates|الإمارات|qatar|قطر|kuwait|الكويت|bahrain|البحرين|oman|عمان/.test(c);const selected=choice==="auto"?(gulf?"4":/egypt|مصر/.test(c)?"5":/pakistan|باكستان|india|الهند|bangladesh|بنغلادش/.test(c)?"1":/united states|usa|canada|أمريكا|كندا/.test(c)?"2":/france|فرنسا/.test(c)?"12":"3"):choice;if(!city||!country){$("prayerDate").textContent="يرجى إدخال البلد والمدينة.";return;}const btn=$("loadPrayer");btn.disabled=true;btn.textContent="جارٍ التحميل...";$("prayerTimes").innerHTML="<p>جارٍ جلب مواقيت الصلاة...</p>";const key=cacheKey+":"+city.toLowerCase()+":"+country.toLowerCase()+":"+selected;try{const now=new Date(),date=[String(now.getDate()).padStart(2,"0"),String(now.getMonth()+1).padStart(2,"0"),now.getFullYear()].join("-");const url=new URL("https://api.aladhan.com/v1/timingsByCity/"+date);url.search=new URLSearchParams({city,country,method:selected}).toString();const res=await fetch(url);if(!res.ok)throw Error("تعذر الوصول إلى خدمة المواقيت ("+res.status+").");const body=await res.json();if(body.code!==200||!body.data?.timings)throw Error(body.status||"لم تتوفر مواقيت لهذه المدينة.");const data=body.data;localStorage.setItem(key,JSON.stringify({savedAt:Date.now(),data}));showPrayer(data,false);}catch(e){let saved=null;try{saved=JSON.parse(localStorage.getItem(key)||"null");}catch{}if(saved?.data){showPrayer(saved.data,true);$("prayerDate").textContent+=" · "+e.message;}else{$("prayerDate").textContent=e.message;$("prayerTimes").innerHTML="<p>لم نتمكن من جلب المواقيت. تحقق من اتصال الإنترنت واسم المدينة والبلد.</p>";}}finally{btn.disabled=false;btn.textContent="عرض مواقيت اليوم";}});
+/* حقوق التطبيق محفوظة؛ النص القرآني وبياناته تخضع لإشعار Tanzil المرفق. */
+(() => {
+  "use strict";
+
+  // اختصار آمن للوصول إلى عناصر الواجهة.
+  const $ = (id) => document.getElementById(id);
+  const menu = $("moreMenu");
+  const panel = $("morePanel");
+
+  // القائمة الإضافية مستقلة عن التنقل الأساسي وتغلق بعد اختيار أي صفحة.
+  function closeMenu() {
+    if (!menu || !panel) return;
+    panel.hidden = true;
+    menu.setAttribute("aria-expanded", "false");
+  }
+
+  function showTab(id) {
+    document.querySelectorAll(".tab").forEach((item) => {
+      item.classList.toggle("active", item.id === id);
+    });
+    document.querySelectorAll('nav button[data-tab]').forEach((item) => {
+      item.classList.toggle("active", item.dataset.tab === id);
+    });
+    closeMenu();
+  }
+
+  if (menu && panel) {
+    menu.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      menu.setAttribute("aria-expanded", String(!panel.hidden));
+    });
+    panel.querySelectorAll("[data-tab]").forEach((button) => {
+      button.addEventListener("click", () => showTab(button.dataset.tab));
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMenu();
+    });
+    document.addEventListener("click", (event) => {
+      if (!panel.hidden && !panel.contains(event.target) && !menu.contains(event.target)) closeMenu();
+    });
+  }
+
+  // حساب اتجاه القبلة والمسافة الكروية من إحداثيات المستخدم إلى الكعبة.
+  const KAABA = { lat: 21.4225, lon: 39.8262 };
+  const EARTH_RADIUS_KM = 6371.0088;
+  const toRadians = (value) => value * Math.PI / 180;
+  const normalize = (value) => (value % 360 + 360) % 360;
+
+  function qiblaBearing(lat, lon) {
+    const phi1 = toRadians(lat);
+    const phi2 = toRadians(KAABA.lat);
+    const deltaLambda = toRadians(KAABA.lon - lon);
+    const y = Math.sin(deltaLambda);
+    const x = Math.cos(phi1) * Math.tan(phi2) -
+      Math.sin(phi1) * Math.cos(deltaLambda);
+    return normalize(Math.atan2(y, x) * 180 / Math.PI);
+  }
+
+  function distanceToKaaba(lat, lon) {
+    const phi1 = toRadians(lat);
+    const phi2 = toRadians(KAABA.lat);
+    const deltaPhi = phi2 - phi1;
+    const deltaLambda = toRadians(KAABA.lon - lon);
+    const a = Math.sin(deltaPhi / 2) ** 2 +
+      Math.cos(phi1) * Math.cos(phi2) * Math.sin(deltaLambda / 2) ** 2;
+    return 2 * EARTH_RADIUS_KM * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }
+
+  function directionName(degrees) {
+    const directions = ["الشمال", "الشمال الشرقي", "الشرق", "الجنوب الشرقي",
+      "الجنوب", "الجنوب الغربي", "الغرب", "الشمال الغربي"];
+    return directions[Math.round(normalize(degrees) / 45) % 8];
+  }
+
+  let coordinates = null;
+  let bearing = null;
+  let deviceHeading = null;
+  let sensorReady = false;
+  let aligned = false;
+  let lastSensorMessage = "";
+
+  function qiblaStatus(message) {
+    const element = $("qiblaBearing");
+    if (element) element.textContent = message;
+  }
+
+  function renderQibla() {
+    if (bearing === null || !coordinates) return;
+    const distance = distanceToKaaba(coordinates.lat, coordinates.lon);
+    const base = "اتجاه القبلة: " + bearing.toFixed(1) + "° من الشمال (" +
+      directionName(bearing) + ") · المسافة إلى الكعبة: " +
+      Math.round(distance).toLocaleString("ar") + " كم.";
+    const needle = document.querySelector(".compass-needle");
+    const mark = $("qiblaMark");
+
+    if (sensorReady && Number.isFinite(deviceHeading)) {
+      const relative = normalize(bearing - deviceHeading);
+      if (needle) {
+        needle.style.display = "block";
+        needle.style.transform = "rotate(" + relative + "deg)";
+      }
+      if (mark) {
+        mark.style.display = "block";
+        mark.style.transform = "translate(-50%,-50%) rotate(" + relative +
+          "deg) translateY(-86px)";
+      }
+      const difference = Math.min(relative, 360 - relative);
+      if (difference <= 5) {
+        if (!aligned && navigator.vibrate) navigator.vibrate(90);
+        aligned = true;
+        qiblaStatus(base + " أنت بمحاذاة القبلة ضمن 5 درجات. أحسنت.");
+      } else {
+        aligned = false;
+        qiblaStatus(base + " حرّك الهاتف حتى يصبح المؤشر باتجاه القبلة. " +
+          "فرق الاتجاه الحالي " + difference.toFixed(1) + "°.");
+      }
+    } else {
+      if (needle) needle.style.display = "none";
+      if (mark) mark.style.display = "none";
+      qiblaStatus(base + " البوصلة الحية غير مفعّلة؛ استخدم الزاوية الرقمية " +
+        "أو فعّل مستشعر الاتجاه بعد معايرة الهاتف.");
+    }
+  }
+
+  function useCoordinates(lat, lon, source) {
+    if (!Number.isFinite(lat) || !Number.isFinite(lon) ||
+        Math.abs(lat) > 90 || Math.abs(lon) > 180) {
+      qiblaStatus("إحداثيات الموقع غير صالحة.");
+      return;
+    }
+    coordinates = { lat, lon };
+    bearing = qiblaBearing(lat, lon);
+    try {
+      localStorage.setItem("mushaf-qibla-location", JSON.stringify(coordinates));
+    } catch (_) {
+      // قد يمنع المتصفح التخزين؛ تظل الحسابات الحالية متاحة.
+    }
+    renderQibla();
+    if (source) qiblaStatus($("qiblaBearing").textContent + " مصدر الموقع: " + source + ".");
+  }
+
+  // استعادة موقع سبق أن اختاره المستخدم، من دون طلب إذن GPS عند فتح التطبيق.
+  try {
+    const saved = JSON.parse(localStorage.getItem("mushaf-qibla-location") || "null");
+    if (saved && Number.isFinite(saved.lat) && Number.isFinite(saved.lon)) {
+      useCoordinates(saved.lat, saved.lon, "الموقع المحفوظ على هذا الجهاز");
+    }
+  } catch (_) {
+    qiblaStatus("لم يُحفظ موقع سابق. اضغط تحديد موقعي عند رغبتك.");
+  }
+
+  const locateButton = $("locateQibla");
+  if (locateButton) {
+    locateButton.addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        qiblaStatus("هذا المتصفح لا يدعم تحديد الموقع. لا يمكن حساب الاتجاه دون إحداثيات؛ اختر مدينة من إعدادات الموقع عند توفرها.");
+        return;
+      }
+      qiblaStatus("نطلب موقعك الآن بعد ضغطك على الزر. وافق على إذن الموقع عند ظهور الطلب.");
+      navigator.geolocation.getCurrentPosition(
+        (position) => useCoordinates(position.coords.latitude, position.coords.longitude, "GPS"),
+        (error) => {
+          const message = error.code === 1
+            ? "رفضت إذن الموقع. يمكنك إعادة المحاولة بعد السماح به من إعدادات المتصفح."
+            : error.code === 2
+              ? "تعذر تحديد الموقع. تحقق من تشغيل خدمة الموقع ثم حاول مجدداً."
+              : "انتهت مهلة تحديد الموقع. حاول في مكان مفتوح أو استخدم موقعاً محفوظاً.";
+          qiblaStatus(message);
+        },
+        { enableHighAccuracy: true, timeout: 20000, maximumAge: 60000 }
+      );
+    });
+  }
+
+  // لا نعتبر alpha بوصلة شمالية إلا إذا كان الحدث مطلقاً؛ webkitCompassHeading
+  // هو القراءة الخاصة بأجهزة iOS، و deviceorientationabsolute شائع على Android.
+  function onOrientation(event) {
+    if (typeof event.webkitCompassHeading === "number") {
+      deviceHeading = normalize(event.webkitCompassHeading);
+      sensorReady = true;
+    } else if (event.absolute === true && typeof event.alpha === "number") {
+      deviceHeading = normalize(360 - event.alpha);
+      sensorReady = true;
+    } else {
+      if (!lastSensorMessage) {
+        lastSensorMessage = "وصلت قراءة اتجاه نسبية وليست شمالاً مغناطيسياً مطلقاً؛ لن نعرض سهماً متحركاً مضللاً.";
+        if (bearing !== null) qiblaStatus(lastSensorMessage + " " + $("qiblaBearing").textContent);
+      }
+      return;
+    }
+    renderQibla();
+  }
+
+  const compassButton = $("enableCompass");
+  if (compassButton) {
+    compassButton.addEventListener("click", async () => {
+      try {
+        if (!("DeviceOrientationEvent" in window)) {
+          throw new Error("هذا الجهاز أو المتصفح لا يوفر مستشعر اتجاه. ستبقى زاوية القبلة والمسافة ظاهرتين رقمياً.");
+        }
+        if (typeof DeviceOrientationEvent.requestPermission === "function") {
+          const permission = await DeviceOrientationEvent.requestPermission();
+          if (permission !== "granted") {
+            throw new Error("لم تمنح إذن مستشعر الاتجاه. يمكنك استخدام الزاوية الرقمية دون البوصلة الحية.");
+          }
+        }
+        window.addEventListener("deviceorientationabsolute", onOrientation, true);
+        window.addEventListener("deviceorientation", onOrientation, true);
+        qiblaStatus(bearing === null
+          ? "تم طلب تفعيل المستشعر. حدّد موقعك أولاً لحساب اتجاه القبلة."
+          : $("qiblaBearing").textContent + " جارٍ انتظار قراءة شمال مطلق من المستشعر.");
+      } catch (error) {
+        qiblaStatus(error.message || "تعذر تفعيل مستشعر الاتجاه. استخدم الزاوية الرقمية.");
+      }
+    });
+  }
+
+  // مواقيت الصلاة: اختيار طريقة الحساب تلقائياً وفق الدولة أو يدوياً.
+  const prayerNames = {
+    Fajr: "الفجر", Sunrise: "الشروق", Dhuhr: "الظهر",
+    Asr: "العصر", Maghrib: "المغرب", Isha: "العشاء"
+  };
+  const prayerCachePrefix = "mushaf-prayer-cache-v2";
+
+  function methodForCountry(country) {
+    const value = country.trim().toLocaleLowerCase();
+    if (/saudi arabia|السعودية|المملكة العربية السعودية/.test(value)) return "4";
+    if (/egypt|مصر/.test(value)) return "5";
+    if (/pakistan|باكستان/.test(value)) return "1";
+    if (/united states|usa|canada|أمريكا|الولايات المتحدة|كندا/.test(value)) return "2";
+    return "3";
+  }
+
+  function prayerCacheKey(city, country, method) {
+    return prayerCachePrefix + ":" + [city, country, method]
+      .map((value) => value.trim().toLocaleLowerCase()).join(":");
+  }
+
+  function renderPrayer(data, stale) {
+    const timings = data.timings || {};
+    const dateElement = $("prayerDate");
+    const timesElement = $("prayerTimes");
+    if (!dateElement || !timesElement) return;
+
+    const dateText = data.date && data.date.readable ? data.date.readable : "";
+    const timezone = data.meta && data.meta.timezone ? data.meta.timezone : "المنطقة الزمنية غير متاحة";
+    dateElement.textContent = dateText + " · " + timezone +
+      (stale ? " · بيانات محفوظة قد تكون قديمة؛ اتصل بالإنترنت للتحديث." : " · تم التحديث الآن.");
+
+    timesElement.replaceChildren();
+    Object.entries(prayerNames).forEach(([key, label]) => {
+      const card = document.createElement("div");
+      const name = document.createElement("span");
+      const time = document.createElement("strong");
+      card.className = "prayer-time";
+      name.textContent = label;
+      time.textContent = String(timings[key] || "—").split(" ")[0];
+      card.append(name, time);
+      timesElement.append(card);
+    });
+  }
+
+  function readPrayerCache(key) {
+    try {
+      const item = JSON.parse(localStorage.getItem(key) || "null");
+      return item && item.data ? item : null;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  async function fetchPrayerTimes() {
+    const city = $("prayerCity").value.trim();
+    const country = $("prayerCountry").value.trim();
+    const choice = $("prayerMethod").value;
+    const method = choice === "auto" ? methodForCountry(country) : choice;
+    const status = $("prayerDate");
+    const output = $("prayerTimes");
+    const button = $("loadPrayer");
+
+    if (!city || !country) {
+      status.textContent = "أدخل اسم البلد والمدينة أولاً.";
+      return;
+    }
+
+    const key = prayerCacheKey(city, country, method);
+    const cached = readPrayerCache(key);
+    button.disabled = true;
+    button.textContent = "جارٍ التحميل...";
+    output.textContent = "جارٍ جلب المواقيت من خدمة AlAdhan...";
+    status.textContent = "طريقة الحساب: " + method + (choice === "auto" ? " (اختيار تلقائي)" : " (اختيار يدوي)");
+
+    try {
+      // نستخدم التاريخ المحلي للجهاز؛ وتُعرض المنطقة الزمنية التي تعيدها الخدمة.
+      const now = new Date();
+      const date = [String(now.getDate()).padStart(2, "0"),
+        String(now.getMonth() + 1).padStart(2, "0"), now.getFullYear()].join("-");
+      const url = new URL("https://api.aladhan.com/v1/timingsByCity/" + date);
+      url.search = new URLSearchParams({ city, country, method }).toString();
+
+      const response = await fetch(url.toString(), { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error("تعذر الاتصال بخدمة المواقيت (HTTP " + response.status + ").");
+      const body = await response.json();
+      if (body.code !== 200 || !body.data || !body.data.timings) {
+        throw new Error("لم تُرجع الخدمة مواقيت صالحة لهذه المدينة.");
+      }
+
+      const record = { savedAt: Date.now(), dateKey: date, data: body.data };
+      try { localStorage.setItem(key, JSON.stringify(record)); } catch (_) { /* التخزين غير متاح */ }
+      renderPrayer(body.data, false);
+    } catch (error) {
+      if (cached) {
+        const sameDay = cached.dateKey === new Date().toLocaleDateString("en-CA");
+        renderPrayer(cached.data, true);
+        status.textContent += " · تعذر التحديث: " + error.message +
+          (sameDay ? "" : " · تاريخ النسخة المحفوظة مختلف عن اليوم.");
+      } else {
+        status.textContent = "لم تتوفر مواقيت محفوظة. " + error.message;
+        output.textContent = "لا توجد بيانات موثوقة للعرض حالياً. تحقق من الاتصال واسم المدينة ثم أعد المحاولة.";
+      }
+    } finally {
+      button.disabled = false;
+      button.textContent = "عرض مواقيت اليوم";
+    }
+  }
+
+  const loadPrayerButton = $("loadPrayer");
+  if (loadPrayerButton) loadPrayerButton.addEventListener("click", fetchPrayerTimes);
+
+  // إظهار طريقة الحساب الافتراضية المناسبة فور تغيير البلد، مع إبقاء التغيير اليدوي ممكناً.
+  const countryInput = $("prayerCountry");
+  const methodSelect = $("prayerMethod");
+  if (countryInput && methodSelect) {
+    countryInput.addEventListener("change", () => {
+      if (methodSelect.value === "auto") {
+        methodSelect.setAttribute("aria-label", "طريقة الحساب التلقائية: " +
+          methodForCountry(countryInput.value));
+      }
+    });
+  }
 })();
