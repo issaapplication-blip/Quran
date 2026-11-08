@@ -1,4 +1,6 @@
 {
+  "buildCommand": "node scripts/make-icons.mjs",
+  "outputDirectory": ".",
   "headers": [
     {
       "source": "/(.*)",
