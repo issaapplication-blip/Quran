@@ -39,4 +39,15 @@ for (const path of ["app.js", "features.js", "sw.js", "scripts/make-icons.mjs", 
   assert.equal(result.status, 0, `JavaScript syntax check failed for ${path}: ${result.stderr}`);
 }
 
-console.log("PASS: Quran SHA-256, 604 pages, 30 juz, adhkar, manifest, app routes, Vercel headers, and JavaScript syntax.");
+// البسملة: نص Tanzil يضمّها في الآية الأولى من 112 سورة (عدا الفاتحة والتوبة)، فلا يجوز أن يضيف العارض بسملة ثانية.
+const lines = quran.toString("utf8").split(/\r?\n/).filter(Boolean).map((l) => l.split("|"));
+const strip = (t) => t.replace(/[ً-ٰٟـ\s]/g, "").replace(/[ٱأإآ]/g, "ا");
+const BASMALA = strip("بِسْمِ ٱللَّهِ ٱلرَّحْمَـٰنِ ٱلرَّحِيمِ");
+const withBasmala = lines.filter(([s, a, t]) => a === "1" && strip(t).startsWith(BASMALA)).map(([s]) => Number(s));
+assert.equal(withBasmala.length, 113, "Tanzil text embeds the basmala in ayah 1 of 113 surahs (including Al-Fatiha)");
+assert.ok(!withBasmala.includes(9), "At-Tawbah has no basmala");
+const appJs = (await read("app.js")).toString("utf8");
+assert.ok(appJs.includes("splitBasmala"), "Reader must split the embedded basmala instead of adding a second one");
+assert.ok(!appJs.includes('<p class="basmala">بِسْمِ'), "Reader must not hard-code an extra basmala line");
+
+console.log("PASS: single basmala per surah, Quran SHA-256, 604 pages, 30 juz, adhkar, manifest, app routes, Vercel headers, and JavaScript syntax.");
