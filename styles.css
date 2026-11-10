@@ -66,11 +66,11 @@ body[data-theme=dark] .feature-status{background:#22332a;color:#cfe8da}
 .zoom-tools input{grid-column:1 / -1;min-height:22px;padding:0;border:0;background:transparent;accent-color:#174f3b}
 .zoom-tools output{font-variant-numeric:tabular-nums;color:#174f3b;font-weight:700}
 .page-range-label{display:block;font-size:.76rem;color:#68756c;margin:.3rem .2rem}
-.mushaf{position:relative;width:min(100%,650px);min-height:640px;padding:clamp(1rem,3.5vw,1.65rem);border:3px double #c4ad72;border-radius:4px;background:#fffdf7;box-shadow:0 10px 30px #32230d18}
+.mushaf{position:relative;width:min(100%,560px);min-height:690px;margin-inline:auto;padding:clamp(1rem,3.5vw,1.65rem);border:4px double #b99b5a;border-radius:5px;background:#fffdf7;box-shadow:0 12px 34px #32230d20}
 .mushaf:before{content:"";position:absolute;inset:7px;border:1px solid #e4d7b5;pointer-events:none}
 .mushaf .page-head{border-bottom:1px solid #cbb77e;padding:.55rem .25rem;color:#8e7440;font-weight:700}
 .mushaf .page-foot{border-top:1px solid #cbb77e;margin-top:1.2rem;padding:.6rem .25rem;color:#8e7440}
-.mushaf #pageText,.mushaf .page-text{position:relative;min-height:540px;padding:1rem .35rem;text-align:justify;text-justify:inter-word;font-family:var(--font-quran);font-size:var(--quran-size);line-height:2.28;word-spacing:.035em}
+.mushaf #pageText,.mushaf .page-text{position:relative;min-height:560px;padding:1rem .35rem;text-align:justify;text-align-last:center;text-justify:inter-word;font-family:var(--font-quran);font-size:var(--quran-size);line-height:2.16;word-spacing:.035em;overflow-wrap:normal}
 .mushaf .surah-block h3{margin:.65rem 0 .35rem;padding:.25rem .5rem;border:1px solid #d9c48b;border-radius:20px;background:linear-gradient(90deg,#f8f2e2,#fffdf7,#f8f2e2);color:#80652f}
 .mushaf .basmala{font-family:var(--font-quran);font-size:1.04em;text-align:center;line-height:2.15;margin:.25rem 0 .55rem;color:inherit}
 .mushaf .mark{color:#8a6d2e;background:#fbf7e9}
@@ -79,7 +79,7 @@ body[data-theme=dark] .feature-status{background:#22332a;color:#cfe8da}
 .continuous-page{min-height:0;scroll-margin-top:calc(var(--header-h,68px) + 125px);margin:0 auto}
 .continuous-page .page-text{min-height:0}
 body[data-reader-mode=scroll] #mushafPage{display:none}
-body[data-reader-mode=scroll] .continuous-page{content-visibility:auto;contain-intrinsic-size:720px}
+body[data-reader-mode=scroll] .continuous-page{contain:layout style}
 body[data-theme=paper] .mushaf{background:#fff}
 body[data-theme=cream] .mushaf{background:#f3e7cc}
 body[data-theme=cream] .mushaf:before{border-color:#d8c49b}
@@ -92,7 +92,7 @@ body[data-theme=dark] .reader-controls{background:#17231bee;border-color:#34473a
 body[data-theme=dark] .page-tools button,body[data-theme=dark] .zoom-tools button{background:#26372c;color:#f1f4ee;border-color:#52664f}
 body[data-theme=dark] .zoom-tools label,body[data-theme=dark] .page-range-label{color:#d0d9d0}
 body[data-theme=dark] .zoom-tools output{color:#e6d19a}
-.mushaf,.continuous-page{touch-action:pan-y}
+.mushaf,.continuous-page{touch-action:pan-y pinch-zoom}
 #quran:fullscreen{background:#f5f4ef;overflow:auto;padding:.5rem}
 #quran:fullscreen .reader-controls{top:0}
 @media(max-width:560px){
@@ -101,8 +101,8 @@ body[data-theme=dark] .zoom-tools output{color:#e6d19a}
  .page-tools button{padding:.42rem .5rem;font-size:.78rem}
  .zoom-tools{grid-template-columns:36px minmax(90px,1fr) 36px 52px}
  .zoom-tools button{padding:.3rem;font-size:.9rem}
- .mushaf{min-height:570px;padding:.8rem}
- .mushaf #pageText,.mushaf .page-text{min-height:470px;padding:.7rem .15rem;line-height:2.12}
+ .mushaf{min-height:620px;padding:.8rem}
+ .mushaf #pageText,.mushaf .page-text{min-height:500px;padding:.7rem .15rem;line-height:2.05}
  .continuous-page{scroll-margin-top:calc(var(--header-h,68px) + 135px)}
  .continuous-page .page-text{min-height:0}
 }
