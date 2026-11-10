@@ -101,9 +101,32 @@ function render(){
 function go(p){page=Math.max(1,Math.min(604,+p));render();if(readerMode==="scroll"){requestAnimationFrame(()=>document.getElementById("readerPage-"+page)?.scrollIntoView({behavior:"smooth",block:"start"}))}else{window.scrollTo({top:0,behavior:"smooth"})}}
 function tab(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.id===t));document.querySelectorAll("nav button[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===t));document.dispatchEvent(new CustomEvent("mushaf:tab",{detail:t}));if(t==="quran"&&readerMode==="scroll")requestAnimationFrame(()=>document.getElementById("readerPage-"+page)?.scrollIntoView({behavior:"smooth",block:"start"}))}
 function surahs(q=""){$("surahList").innerHTML=N.map((n,i)=>({n,i})).filter(x=>!q||x.n.includes(q)||String(x.i+1)===q).map(x=>'<button data-s="'+(x.i+1)+'"><b>'+ar(x.i+1)+'. '+x.n+'</b><small>'+ar(C[x.i])+' آية</small></button>').join("")}
-function azkar(){let d=localDay(),p={};try{p=JSON.parse(ls.get("azkar-progress")||"{}")}catch{}if(p.day!==d)p={day:d,c:{}};$("azkarList").innerHTML=A.filter(x=>x.category==="both"||x.category===cat).map(x=>{let n=p.c?.[x.id]||0;return '<article class="zikr"><small>التكرار '+ar(x.count)+' · ذكر '+ar(x.id)+'</small><p>'+safe(x.text)+'</p><div><span>'+safe(x.source)+'</span><button data-z="'+x.id+'">'+ar(Math.min(n,x.count))+' / '+ar(x.count)+' · عدّ</button></div><i><b style="width:'+Math.min(100,n/x.count*100)+'%"></b></i></article>'}).join("")}
-function saveTas(){ls.set("tasbih",JSON.stringify({day:localDay(),cnt,target,today,dhikr:$("dhikr").value}))}
-function loadTas(){let v={};try{v=JSON.parse(ls.get("tasbih")||"{}")}catch{}let d=localDay();today=v.day===d?(v.today||0):0;cnt=v.cnt||0;target=v.target??33;$("count").textContent=ar(cnt);$("target").value=target;$("dhikr").value=v.dhikr||"سُبْحَانَ اللَّهِ";$("today").textContent="إنجاز اليوم: "+ar(today)+" تسبيحة"}
+const AZ_FAV_KEY="azkar-favorites";
+function getAzkarProgress(){let p={};try{p=JSON.parse(ls.get("azkar-progress")||"{}")}catch{}if(p.day!==localDay())p={day:localDay(),c:{}};p.c=p.c||{};return p}
+function getAzkarFavorites(){try{const v=JSON.parse(ls.get(AZ_FAV_KEY)||"[]");return Array.isArray(v)?v.map(String):[]}catch{return[]}}
+function azkar(){
+ const progress=getAzkarProgress(),favorites=getAzkarFavorites(),query=norm($("azkarSearch").value||"");
+ const onlyFavorites=$("azkarFavorites").getAttribute("aria-pressed")==="true";
+ const rows=A.filter(x=>(x.category==="both"||x.category===cat)&&(!onlyFavorites||favorites.includes(String(x.id)))&&(!query||norm(x.text+" "+x.source).includes(query)));
+ const done=rows.filter(x=>(progress.c[x.id]||0)>=x.count).length;
+ $("azkarSummary").textContent=rows.length?("أُنجز "+ar(done)+" من "+ar(rows.length)+" أذكار في هذا القسم"):"لا توجد أذكار مطابقة لهذا البحث.";
+ $("azkarList").innerHTML=rows.map(x=>{
+  const n=Math.min(progress.c[x.id]||0,x.count),fav=favorites.includes(String(x.id));
+  return '<article class="zikr"><div class="zikr-meta"><span>التكرار المطلوب: '+ar(x.count)+'</span><button class="zikr-fav" type="button" data-fav="'+x.id+'" aria-label="'+(fav?"إزالة من المفضلة":"إضافة إلى المفضلة")+'" aria-pressed="'+fav+'">'+(fav?"♥":"♡")+'</button></div><p>'+safe(x.text)+'</p><div class="zikr-bottom"><span>'+safe(x.source)+'</span><button class="zikr-count" type="button" data-z="'+x.id+'">'+(n>=x.count?"✓ اكتمل":ar(n)+" / "+ar(x.count)+" · تسبيح")+'</button></div><div class="zikr-progress" role="progressbar" aria-valuemin="0" aria-valuemax="'+x.count+'" aria-valuenow="'+n+'"><b style="width:'+Math.min(100,n/x.count*100)+'%"></b></div></article>';
+ }).join("");
+}
+function currentDhikr(){return $("dhikr").value==="custom"?$("custom").value.trim()||"ذكر مخصص":$("dhikr").value}
+function renderTas(){
+ $("count").textContent=ar(cnt);$("currentDhikr").textContent=currentDhikr();
+ $("today").textContent="مجموع ما سبّحته اليوم: "+ar(today)+" مرة";
+ const pct=target?Math.min(100,cnt/target*100):0;
+ $("counterDial").style.setProperty("--progress",pct+"%");
+ $("counterDial").setAttribute("aria-label","عدد التسبيحات "+cnt+" من "+(target||"دون هدف"));
+ $("targetProgress").textContent=target?ar(Math.min(cnt,target))+" / "+ar(target):ar(cnt)+" · بلا هدف";
+ $("targetBar").style.width=pct+"%";
+}
+function saveTas(){ls.set("tasbih",JSON.stringify({day:localDay(),cnt,target,today,dhikr:$("dhikr").value,custom:$("custom").value}))}
+function loadTas(){let v={};try{v=JSON.parse(ls.get("tasbih")||"{}")}catch{}let d=localDay();today=v.day===d?(v.today||0):0;cnt=v.cnt||0;target=v.target??33;$("target").value=target;$("dhikr").value=v.dhikr||"سُبْحَانَ اللَّهِ";$("custom").value=v.custom||"";$("custom").hidden=$("dhikr").value!=="custom";renderTas()}
 async function init(){try{let [q,p,a]=await Promise.all(["quran-uthmani.txt","mushaf-pages.json","adhkar-morning-evening.json"].map(x=>fetch("./data/"+x)));if(!q.ok||!p.ok||!a.ok)throw Error("تعذر تحميل ملفات المحتوى");let qb=await q.arrayBuffer(),fp="";if(window.crypto&&crypto.subtle){if(await sha256(qb)!==QURAN_SHA256)throw Error("تم اكتشاف تغيير في ملف نص القرآن عن نسخة Tanzil المعتمدة، لذلك أُوقف عرض النص. أعد تحميل الصفحة أو ثبّت النسخة الأصلية.");fp=" وبصمة SHA-256 للنص مطابقة."}Q=parse(new TextDecoder("utf-8").decode(qb));M=await p.json();A=await a.json();if(M.pages.length!==604||M.juz.length!==30)throw Error("بيانات الصفحات ناقصة");$("page").innerHTML=Array.from({length:604},(_,i)=>'<option value="'+(i+1)+'">صفحة '+ar(i+1)+'</option>').join("");$("surah").innerHTML=N.map((x,i)=>'<option value="'+(i+1)+'">'+ar(i+1)+'. '+x+'</option>').join("");$("juz").innerHTML=M.juz.map(x=>'<option value="'+x.juz+'">الجزء '+ar(x.juz)+'</option>').join("");let b=null;try{b=JSON.parse(ls.get("mushaf-bookmark")||"null")}catch{}page=Math.min(604,Math.max(1,+b?.page||1));applyPrefs();render();surahs();azkar();loadTas();$("status").textContent="تم التحقق: ١١٤ سورة، ٦٢٣٦ آية، ٦٠٤ صفحات، ٣٠ جزءاً."+fp}catch(e){$("status").textContent=e.message;$("status").classList.add("error")}}
 document.querySelectorAll("nav button[data-tab]").forEach(b=>b.onclick=()=>tab(b.dataset.tab));$("page").onchange=e=>go(e.target.value);$("range").oninput=e=>go(e.target.value);$("prev").onclick=()=>go(page-1);$("next").onclick=()=>go(page+1);$("surah").onchange=e=>{go(pageFor(+e.target.value,1));tab("quran")};$("juz").onchange=e=>{let j=M.juz.find(x=>x.juz===+e.target.value);go(pageFor(j.surah,j.ayah))};$("save").onclick=()=>{let s=M.pages[page-1];ls.set("mushaf-bookmark",JSON.stringify({page,surah:s.sura,ayah:s.aya}));$("status").textContent="حُفظ موضع القراءة"};
 function setSize(v){
@@ -159,9 +182,22 @@ $("findToggle").onclick=()=>{$("searchBox").hidden=!$("searchBox").hidden};$("cl
 $("query").oninput=e=>{let raw=e.target.value.trim(),q=norm(raw);if(!q){$("results").hidden=true;return}if(!QN)QN=Q.map((sr,i)=>sr.map((v,j)=>norm(j===0&&i!==0&&i!==8?splitBasmala(v)[1]:v)));let hits=[],total=0;QN.forEach((sr,i)=>sr.forEach((v,j)=>{if(v.includes(q)){total++;if(hits.length<60)hits.push({s:i+1,a:j+1,t:j===0&&i!==0&&i!==8?splitBasmala(Q[i][j])[1]:Q[i][j]})}}));$("results").hidden=false;$("results").innerHTML=(total?'<small>'+ar(total)+' نتيجة'+(total>60?' (تُعرض أول ٦٠)':'')+'</small>':'')+hits.map(x=>'<button data-hit="'+x.s+':'+x.a+'">'+N[x.s-1]+' '+ar(x.a)+' — '+safe(x.t)+'</button>').join("")||"لا توجد نتائج"};
 $("results").onclick=e=>{let b=e.target.closest("[data-hit]");if(!b)return;let [s,a]=b.dataset.hit.split(":").map(Number);go(pageFor(s,a));tab("quran")};
 $("filter").oninput=e=>surahs(e.target.value);$("surahList").onclick=e=>{let b=e.target.closest("[data-s]");if(b){go(pageFor(+b.dataset.s,1));tab("quran")}};
-document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));azkar()});
-$("azkarList").onclick=e=>{let b=e.target.closest("[data-z]");if(!b)return;let d=localDay(),p={};try{p=JSON.parse(ls.get("azkar-progress")||"{}")}catch{}if(p.day!==d)p={day:d,c:{}};p.c=p.c||{};p.c[b.dataset.z]=(p.c[b.dataset.z]||0)+1;ls.set("azkar-progress",JSON.stringify(p));azkar()};
-$("dhikr").onchange=e=>{$("custom").hidden=e.target.value!=="custom";saveTas()};$("custom").oninput=saveTas;$("target").onchange=e=>{target=+e.target.value;saveTas()};$("tap").onclick=()=>{cnt++;today++;$("count").textContent=ar(cnt);$("today").textContent="إنجاز اليوم: "+ar(today)+" تسبيحة";$("message").textContent=target&&cnt===target?"اكتمل الهدف، بارك الله فيك.":"تقبل الله ذكرك.";if($("vibrate").checked&&navigator.vibrate)navigator.vibrate(22);saveTas()};$("undo").onclick=()=>{if(cnt){cnt--;today=Math.max(0,today-1);$("count").textContent=ar(cnt);$("today").textContent="إنجاز اليوم: "+ar(today)+" تسبيحة";saveTas()}};$("reset").onclick=()=>{cnt=0;$("count").textContent="٠";saveTas();$("message").textContent="تم تصفير العداد."};
+document.querySelectorAll("[data-cat]").forEach(b=>b.onclick=()=>{cat=b.dataset.cat;document.querySelectorAll("[data-cat]").forEach(x=>x.classList.toggle("active",x===b));$("azkarFavorites").setAttribute("aria-pressed","false");azkar()});
+$("azkarSearch").oninput=azkar;
+$("azkarFavorites").onclick=()=>{$("azkarFavorites").setAttribute("aria-pressed",$("azkarFavorites").getAttribute("aria-pressed")!=="true");azkar()};
+$("azkarList").onclick=e=>{
+ const fav=e.target.closest("[data-fav]");
+ if(fav){let list=getAzkarFavorites(),id=String(fav.dataset.fav);list=list.includes(id)?list.filter(x=>x!==id):[...list,id];ls.set(AZ_FAV_KEY,JSON.stringify(list));azkar();return}
+ const b=e.target.closest("[data-z]");if(!b)return;
+ const p=getAzkarProgress(),item=A.find(x=>String(x.id)===String(b.dataset.z));if(!item)return;
+ p.c[item.id]=Math.min(item.count,(p.c[item.id]||0)+1);ls.set("azkar-progress",JSON.stringify(p));azkar();
+};
+$("dhikr").onchange=()=>{$("custom").hidden=$("dhikr").value!=="custom";renderTas();saveTas()};
+$("custom").oninput=()=>{renderTas();saveTas()};
+$("target").onchange=e=>{target=+e.target.value;renderTas();saveTas()};
+$("tap").onclick=()=>{cnt++;today++;renderTas();$("message").textContent=target&&cnt>=target?"اكتمل هدفك، بارك الله فيك. تقبّل الله ذكرك.":"تقبّل الله ذكرك.";if($("vibrate").checked&&navigator.vibrate)navigator.vibrate(22);saveTas()};
+$("undo").onclick=()=>{if(cnt){cnt--;today=Math.max(0,today-1);renderTas();saveTas()}};
+$("reset").onclick=()=>{cnt=0;renderTas();saveTas();$("message").textContent="أُعيد ضبط العداد.";};
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();window._prompt=e;$("install").hidden=false});$("install").onclick=async()=>{if(window._prompt){window._prompt.prompt();await window._prompt.userChoice;window._prompt=null;$("install").hidden=true}};
 if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});init();
 // إخفاء زر التثبيت بعد نجاح تثبيت التطبيق على الجهاز.
