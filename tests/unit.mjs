@@ -50,6 +50,7 @@ assert.ok(!withBasmala.includes(9), "At-Tawbah has no basmala");
 const appJs = (await read("app.js")).toString("utf8");
 assert.ok(appJs.includes("splitBasmala"), "Reader must split the embedded basmala instead of adding a second one");
 assert.ok(appJs.includes("touchstart") && appJs.includes("touchmove") && appJs.includes("setReaderMode"), "Reader must support pinch zoom and continuous mode");
+assert.ok(appJs.includes('data-rendered="false"') && appJs.includes('el.dataset.rendered!=="true"'), "Continuous pages must render lazily for mobile performance");
 assert.ok(!appJs.includes('<p class="basmala">بِسْمِ'), "Reader must not hard-code an extra basmala line");
 
 console.log("PASS: single basmala per surah, Quran SHA-256, 604 pages, 30 juz, adhkar, manifest, app routes, Vercel headers, and JavaScript syntax.");
