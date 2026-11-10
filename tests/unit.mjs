@@ -29,6 +29,7 @@ for (const asset of ["./app.js", "./features.js", "./styles.css", "./manifest.we
   assert.ok(html.includes(asset), `index.html must reference ${asset}`);
 }
 assert.ok(html.includes('id="qibla"') && html.includes('id="prayer"'), "Qibla and prayer screens must exist");
+assert.ok(html.includes('id="sizeRange"') && html.includes('id="modeToggle"') && html.includes('id="continuousReader"'), "Reader must expose font zoom and continuous reading mode");
 
 const vercel = JSON.parse(await read("vercel.json"));
 assert.equal(vercel.outputDirectory, ".");
@@ -48,6 +49,7 @@ assert.equal(withBasmala.length, 113, "Tanzil text embeds the basmala in ayah 1 
 assert.ok(!withBasmala.includes(9), "At-Tawbah has no basmala");
 const appJs = (await read("app.js")).toString("utf8");
 assert.ok(appJs.includes("splitBasmala"), "Reader must split the embedded basmala instead of adding a second one");
+assert.ok(appJs.includes("touchstart") && appJs.includes("touchmove") && appJs.includes("setReaderMode"), "Reader must support pinch zoom and continuous mode");
 assert.ok(!appJs.includes('<p class="basmala">بِسْمِ'), "Reader must not hard-code an extra basmala line");
 
 console.log("PASS: single basmala per surah, Quran SHA-256, 604 pages, 30 juz, adhkar, manifest, app routes, Vercel headers, and JavaScript syntax.");
