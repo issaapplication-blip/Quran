@@ -53,4 +53,7 @@ assert.ok(appJs.includes("touchstart") && appJs.includes("touchmove") && appJs.i
 assert.ok(appJs.includes('data-rendered="false"') && appJs.includes('el.dataset.rendered!=="true"'), "Continuous pages must render lazily for mobile performance");
 assert.ok(!appJs.includes('<p class="basmala">بِسْمِ'), "Reader must not hard-code an extra basmala line");
 
+assert.ok(html.includes('id="azkarSearch"') && html.includes('id="azkarFavorites"') && html.includes('id="azkarSummary"'), "Adhkar search, favorites and progress summary must exist");
+assert.ok(html.includes('id="counterDial"') && html.includes('id="targetBar"') && html.includes('id="currentDhikr"'), "Tasbih visual counter and goal progress must exist");
+assert.ok(appJs.includes("AZ_FAV_KEY") && appJs.includes("renderTas") && appJs.includes("getAzkarProgress"), "Adhkar favorites and Tasbih progress logic must exist");
 console.log("PASS: single basmala per surah, Quran SHA-256, 604 pages, 30 juz, adhkar, manifest, app routes, Vercel headers, and JavaScript syntax.");
