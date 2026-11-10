@@ -16,19 +16,128 @@ let Q=[],M,A,page=1,size=1.72,cat="morning",cnt=0,target=33,today=0;
 const K=(s,a)=>s*1000+a,idx=(s,a)=>Q.slice(0,s-1).reduce((n,x)=>n+x.length,0)+a-1;
 function parse(t){let a=Array.from({length:114},()=>[]);for(let l of t.replace(/^﻿/,"").split(/\r?\n/)){if(!l)continue;let m=/^(\d+)\|(\d+)\|(.*)$/u.exec(l);if(!m||+m[2]!==a[+m[1]-1]?.length+1)throw Error("خطأ في تسلسل النص");a[+m[1]-1].push(m[3])}if(a.some((x,i)=>x.length!==C[i])||a.flat().length!==6236)throw Error("لم يكتمل فحص السور والآيات");return a}
 function pageFor(s,a){let k=K(s,a),lo=0,hi=603;while(lo<hi){let m=Math.ceil((lo+hi)/2),x=M.pages[m];if(K(x.sura,x.aya)<=k)lo=m;else hi=m-1}return lo+1}
-function render(){let st=M.pages[page-1],en=M.pages[page]||{sura:115,aya:1},from=idx(st.sura,st.aya),to=en.sura===115?6236:idx(en.sura,en.aya),out=[],last=0;for(let i=from;i<to;i++){let s=1,j=i;while(j>=Q[s-1].length){j-=Q[s-1].length;s++}let a=j+1,t=Q[s-1][j],bs="";if(a===1&&s!==1&&s!==9){[bs,t]=splitBasmala(t)}if(s!==last){if(last)out.push("</div>");out.push('<div class="surah-block"><h3>'+N[s-1]+'</h3>');last=s;if(bs)out.push('<p class="basmala">'+safe(bs)+'</p>')}out.push(safe(t)+' <span class="mark">'+ar(a)+'</span> ')}if(last)out.push("</div>");$("pageText").innerHTML=out.join("");$("pageSurah").textContent=N[st.sura-1];let z=1;for(let j of M.juz){if(K(j.surah,j.ayah)<=K(st.sura,st.aya))z=j.juz;else break}$("pageJuz").textContent="الجزء "+ar(z);$("pageNum").textContent=ar(page);$("page").value=page;$("range").value=page;$("prev").disabled=page===1;$("next").disabled=page===604}
-function go(p){page=Math.max(1,Math.min(604,+p));render();window.scrollTo({top:0,behavior:"smooth"})}
+function pageInfo(p){
+ let st=M.pages[p-1],en=M.pages[p]||{sura:115,aya:1};
+ let from=idx(st.sura,st.aya),to=en.sura===115?6236:idx(en.sura,en.aya),out=[],last=0;
+ for(let i=from;i<to;i++){
+  let s=1,j=i;
+  while(j>=Q[s-1].length){j-=Q[s-1].length;s++}
+  let a=j+1,t=Q[s-1][j],bs="";
+  if(a===1&&s!==1&&s!==9){[bs,t]=splitBasmala(t)}
+  if(s!==last){
+   if(last)out.push("</div>");
+   out.push('<div class="surah-block"><h3>'+safe(N[s-1])+'</h3>');
+   last=s;
+   if(bs)out.push('<p class="basmala">'+safe(bs)+'</p>')
+  }
+  out.push(safe(t)+' <span class="mark">'+ar(a)+'</span> ')
+ }
+ if(last)out.push("</div>");
+ let z=1;
+ for(let j of M.juz){if(K(j.surah,j.ayah)<=K(st.sura,st.aya))z=j.juz;else break}
+ return {html:out.join(""),surah:st.sura,juz:z}
+}
+let continuousBuilt=false,pageObserver=null;
+function updatePageControls(){
+ $("page").value=page;$("range").value=page;
+ $("prev").disabled=page===1;$("next").disabled=page===604;
+}
+function buildContinuous(){
+ if(continuousBuilt)return;
+ const chunks=[];
+ for(let p=1;p<=604;p++){
+  const d=pageInfo(p);
+  chunks.push('<article class="mushaf continuous-page" id="readerPage-'+p+'" data-page="'+p+'"><div class="page-head"><span>'+safe(N[d.surah-1])+'</span><span>الجزء '+ar(d.juz)+'</span></div><div class="page-text">'+d.html+'</div><div class="page-foot"><span>'+ar(p)+'</span><span>المصحف الشريف</span></div></article>')
+ }
+ $("continuousReader").innerHTML=chunks.join("");
+ continuousBuilt=true;
+ if("IntersectionObserver"in window){
+  pageObserver=new IntersectionObserver(entries=>{
+   const visible=entries.filter(x=>x.isIntersecting).sort((a,b)=>{
+    const mid=window.innerHeight*.42;
+    return Math.abs(a.boundingClientRect.top-mid)-Math.abs(b.boundingClientRect.top-mid)
+   })[0];
+   if(visible){
+    const next=Number(visible.target.dataset.page);
+    if(next>=1&&next<=604&&next!==page){page=next;updatePageControls()}
+   }
+  },{rootMargin:"-35% 0px -45% 0px",threshold:0});
+  $("continuousReader").querySelectorAll(".continuous-page").forEach(x=>pageObserver.observe(x))
+ }
+}
+let readerMode="page";
+function render(){
+ const d=pageInfo(page);
+ if(readerMode==="scroll"){
+  $("mushafPage").hidden=true;
+  $("continuousReader").hidden=false;
+  buildContinuous();
+ }else{
+  $("continuousReader").hidden=true;
+  $("mushafPage").hidden=false;
+  $("pageText").innerHTML=d.html;
+  $("pageSurah").textContent=N[d.surah-1];
+  $("pageJuz").textContent="الجزء "+ar(d.juz);
+  $("pageNum").textContent=ar(page);
+ }
+ updatePageControls();
+}
+function go(p){page=Math.max(1,Math.min(604,+p));render();if(readerMode==="scroll"){requestAnimationFrame(()=>document.getElementById("readerPage-"+page)?.scrollIntoView({behavior:"smooth",block:"start"}))}else{window.scrollTo({top:0,behavior:"smooth"})}}
 function tab(t){document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.id===t));document.querySelectorAll("nav button[data-tab]").forEach(x=>x.classList.toggle("active",x.dataset.tab===t));document.dispatchEvent(new CustomEvent("mushaf:tab",{detail:t}))}
 function surahs(q=""){$("surahList").innerHTML=N.map((n,i)=>({n,i})).filter(x=>!q||x.n.includes(q)||String(x.i+1)===q).map(x=>'<button data-s="'+(x.i+1)+'"><b>'+ar(x.i+1)+'. '+x.n+'</b><small>'+ar(C[x.i])+' آية</small></button>').join("")}
 function azkar(){let d=localDay(),p={};try{p=JSON.parse(ls.get("azkar-progress")||"{}")}catch{}if(p.day!==d)p={day:d,c:{}};$("azkarList").innerHTML=A.filter(x=>x.category==="both"||x.category===cat).map(x=>{let n=p.c?.[x.id]||0;return '<article class="zikr"><small>التكرار '+ar(x.count)+' · ذكر '+ar(x.id)+'</small><p>'+safe(x.text)+'</p><div><span>'+safe(x.source)+'</span><button data-z="'+x.id+'">'+ar(Math.min(n,x.count))+' / '+ar(x.count)+' · عدّ</button></div><i><b style="width:'+Math.min(100,n/x.count*100)+'%"></b></i></article>'}).join("")}
 function saveTas(){ls.set("tasbih",JSON.stringify({day:localDay(),cnt,target,today,dhikr:$("dhikr").value}))}
 function loadTas(){let v={};try{v=JSON.parse(ls.get("tasbih")||"{}")}catch{}let d=localDay();today=v.day===d?(v.today||0):0;cnt=v.cnt||0;target=v.target??33;$("count").textContent=ar(cnt);$("target").value=target;$("dhikr").value=v.dhikr||"سُبْحَانَ اللَّهِ";$("today").textContent="إنجاز اليوم: "+ar(today)+" تسبيحة"}
-async function init(){try{let [q,p,a]=await Promise.all(["quran-uthmani.txt","mushaf-pages.json","adhkar-morning-evening.json"].map(x=>fetch("./data/"+x)));if(!q.ok||!p.ok||!a.ok)throw Error("تعذر تحميل ملفات المحتوى");let qb=await q.arrayBuffer(),fp="";if(window.crypto&&crypto.subtle){if(await sha256(qb)!==QURAN_SHA256)throw Error("تم اكتشاف تغيير في ملف نص القرآن عن نسخة Tanzil المعتمدة، لذلك أُوقف عرض النص. أعد تحميل الصفحة أو ثبّت النسخة الأصلية.");fp=" وبصمة SHA-256 للنص مطابقة."}Q=parse(new TextDecoder("utf-8").decode(qb));M=await p.json();A=await a.json();if(M.pages.length!==604||M.juz.length!==30)throw Error("بيانات الصفحات ناقصة");$("page").innerHTML=Array.from({length:604},(_,i)=>'<option value="'+(i+1)+'">صفحة '+ar(i+1)+'</option>').join("");$("surah").innerHTML=N.map((x,i)=>'<option value="'+(i+1)+'">'+ar(i+1)+'. '+x+'</option>').join("");$("juz").innerHTML=M.juz.map(x=>'<option value="'+x.juz+'">الجزء '+ar(x.juz)+'</option>').join("");let b=null;try{b=JSON.parse(ls.get("mushaf-bookmark")||"null")}catch{}page=Math.min(604,Math.max(1,+b?.page||1));render();surahs();azkar();loadTas();applyPrefs();$("status").textContent="تم التحقق: ١١٤ سورة، ٦٢٣٦ آية، ٦٠٤ صفحات، ٣٠ جزءاً."+fp}catch(e){$("status").textContent=e.message;$("status").classList.add("error")}}
+async function init(){try{let [q,p,a]=await Promise.all(["quran-uthmani.txt","mushaf-pages.json","adhkar-morning-evening.json"].map(x=>fetch("./data/"+x)));if(!q.ok||!p.ok||!a.ok)throw Error("تعذر تحميل ملفات المحتوى");let qb=await q.arrayBuffer(),fp="";if(window.crypto&&crypto.subtle){if(await sha256(qb)!==QURAN_SHA256)throw Error("تم اكتشاف تغيير في ملف نص القرآن عن نسخة Tanzil المعتمدة، لذلك أُوقف عرض النص. أعد تحميل الصفحة أو ثبّت النسخة الأصلية.");fp=" وبصمة SHA-256 للنص مطابقة."}Q=parse(new TextDecoder("utf-8").decode(qb));M=await p.json();A=await a.json();if(M.pages.length!==604||M.juz.length!==30)throw Error("بيانات الصفحات ناقصة");$("page").innerHTML=Array.from({length:604},(_,i)=>'<option value="'+(i+1)+'">صفحة '+ar(i+1)+'</option>').join("");$("surah").innerHTML=N.map((x,i)=>'<option value="'+(i+1)+'">'+ar(i+1)+'. '+x+'</option>').join("");$("juz").innerHTML=M.juz.map(x=>'<option value="'+x.juz+'">الجزء '+ar(x.juz)+'</option>').join("");let b=null;try{b=JSON.parse(ls.get("mushaf-bookmark")||"null")}catch{}page=Math.min(604,Math.max(1,+b?.page||1));applyPrefs();render();surahs();azkar();loadTas();$("status").textContent="تم التحقق: ١١٤ سورة، ٦٢٣٦ آية، ٦٠٤ صفحات، ٣٠ جزءاً."+fp}catch(e){$("status").textContent=e.message;$("status").classList.add("error")}}
 document.querySelectorAll("nav button[data-tab]").forEach(b=>b.onclick=()=>tab(b.dataset.tab));$("page").onchange=e=>go(e.target.value);$("range").oninput=e=>go(e.target.value);$("prev").onclick=()=>go(page-1);$("next").onclick=()=>go(page+1);$("surah").onchange=e=>{go(pageFor(+e.target.value,1));tab("quran")};$("juz").onchange=e=>{let j=M.juz.find(x=>x.juz===+e.target.value);go(pageFor(j.surah,j.ayah))};$("save").onclick=()=>{let s=M.pages[page-1];ls.set("mushaf-bookmark",JSON.stringify({page,surah:s.sura,ayah:s.aya}));$("status").textContent="حُفظ موضع القراءة"};
-function setSize(v){size=Math.min(2.6,Math.max(1.2,+v.toFixed(2)));document.documentElement.style.setProperty("--quran-size",size+"rem");ls.set("mushaf-size",String(size))}
-$("smaller").onclick=()=>setSize(size-.1);$("larger").onclick=()=>setSize(size+.1);
+function setSize(v){
+ size=Math.min(2.8,Math.max(1.2,+Number(v).toFixed(2)));
+ document.documentElement.style.setProperty("--quran-size",size+"rem");
+ $("sizeRange").value=String(size);
+ $("sizeValue").textContent=ar(Math.round(size/1.72*100))+"٪";
+ ls.set("mushaf-size",String(size))
+}
+$("smaller").onclick=()=>setSize(size-.1);
+$("larger").onclick=()=>setSize(size+.1);
+$("resetSize").onclick=()=>setSize(1.72);
+$("sizeRange").oninput=e=>setSize(e.target.value);
+function setReaderMode(mode,rerender=true){
+ readerMode=mode==="scroll"?"scroll":"page";
+ document.body.dataset.readerMode=readerMode;
+ $("modeToggle").textContent=readerMode==="page"?"تمرير مستمر":"صفحات منفردة";
+ $("modeToggle").setAttribute("aria-pressed",String(readerMode==="scroll"));
+ ls.set("mushaf-reader-mode",readerMode);
+ if(rerender&&Q.length){
+  render();
+  if(readerMode==="scroll")requestAnimationFrame(()=>document.getElementById("readerPage-"+page)?.scrollIntoView({behavior:"smooth",block:"start"}));
+  else window.scrollTo({top:0,behavior:"smooth"});
+ }
+}
+$("modeToggle").onclick=()=>setReaderMode(readerMode==="page"?"scroll":"page");
+$("fullScreen").onclick=async()=>{
+ try{
+  if(document.fullscreenElement){await document.exitFullscreen()}
+  else if($("quran").requestFullscreen){await $("quran").requestFullscreen()}
+  else throw new Error("unsupported");
+ }catch{$("status").textContent="ملء الشاشة غير مدعوم في هذا المتصفح؛ يمكنك القراءة بالتمرير أو تدوير الهاتف."}
+};
+document.addEventListener("fullscreenchange",()=>{$("fullScreen").textContent=document.fullscreenElement?"إنهاء ملء الشاشة":"ملء الشاشة"});
+let pinchStartDistance=0,pinchStartSize=size;
+const touchDistance=t=>Math.hypot(t[0].clientX-t[1].clientX,t[0].clientY-t[1].clientY);
+document.addEventListener("touchstart",e=>{
+ if(!e.target.closest("#mushafPage,.continuous-page"))return;
+ if(e.touches.length===2){pinchStartDistance=touchDistance(e.touches);pinchStartSize=size}
+},{passive:true});
+document.addEventListener("touchmove",e=>{
+ if(!pinchStartDistance||e.touches.length!==2)return;
+ e.preventDefault();
+ setSize(pinchStartSize*touchDistance(e.touches)/pinchStartDistance);
+},{passive:false});
+function clearPinch(){pinchStartDistance=0}
+document.addEventListener("touchend",e=>{if(e.touches.length<2)clearPinch()},{passive:true});
+document.addEventListener("touchcancel",clearPinch,{passive:true});
 function setTheme(t){document.body.dataset.theme=t;document.querySelectorAll("[data-theme]").forEach(x=>x.classList.toggle("active",x.dataset.theme===t))}
-function applyPrefs(){let t=ls.get("mushaf-theme");if(["paper","cream","dark"].includes(t))setTheme(t);let z=parseFloat(ls.get("mushaf-size"));if(z>=1.2&&z<=2.6)setSize(z)}
+function applyPrefs(){let t=ls.get("mushaf-theme");if(["paper","cream","dark"].includes(t))setTheme(t);let z=parseFloat(ls.get("mushaf-size"));if(z>=1.2&&z<=2.8)setSize(z);setReaderMode(ls.get("mushaf-reader-mode")==="scroll"?"scroll":"page",false)}
 document.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>{setTheme(b.dataset.theme);ls.set("mushaf-theme",b.dataset.theme)});
 $("findToggle").onclick=()=>{$("searchBox").hidden=!$("searchBox").hidden};$("clear").onclick=()=>{$("query").value="";$("results").hidden=true};
 $("query").oninput=e=>{let raw=e.target.value.trim(),q=norm(raw);if(!q){$("results").hidden=true;return}if(!QN)QN=Q.map((sr,i)=>sr.map((v,j)=>norm(j===0&&i!==0&&i!==8?splitBasmala(v)[1]:v)));let hits=[],total=0;QN.forEach((sr,i)=>sr.forEach((v,j)=>{if(v.includes(q)){total++;if(hits.length<60)hits.push({s:i+1,a:j+1,t:j===0&&i!==0&&i!==8?splitBasmala(Q[i][j])[1]:Q[i][j]})}}));$("results").hidden=false;$("results").innerHTML=(total?'<small>'+ar(total)+' نتيجة'+(total>60?' (تُعرض أول ٦٠)':'')+'</small>':'')+hits.map(x=>'<button data-hit="'+x.s+':'+x.a+'">'+N[x.s-1]+' '+ar(x.a)+' — '+safe(x.t)+'</button>').join("")||"لا توجد نتائج"};
