@@ -46,8 +46,7 @@ function buildContinuous(){
  if(continuousBuilt)return;
  const chunks=[];
  for(let p=1;p<=604;p++){
-  const d=pageInfo(p);
-  chunks.push('<article class="mushaf continuous-page" id="readerPage-'+p+'" data-page="'+p+'"><div class="page-head"><span>'+safe(N[d.surah-1])+'</span><span>الجزء '+ar(d.juz)+'</span></div><div class="page-text">'+d.html+'</div><div class="page-foot"><span>'+ar(p)+'</span><span>المصحف الشريف</span></div></article>')
+  chunks.push('<article class="mushaf continuous-page" id="readerPage-'+p+'" data-page="'+p+'" data-rendered="false"><div class="page-head"><span>المصحف الشريف</span><span>صفحة '+ar(p)+'</span></div><div class="page-text" aria-live="off"></div><div class="page-foot"><span>'+ar(p)+'</span><span>المصحف الشريف</span></div></article>')
  }
  $("continuousReader").innerHTML=chunks.join("");
  continuousBuilt=true;
@@ -57,12 +56,29 @@ function buildContinuous(){
     const mid=window.innerHeight*.42;
     return Math.abs(a.boundingClientRect.top-mid)-Math.abs(b.boundingClientRect.top-mid)
    })[0];
+   for(const entry of entries){
+    if(!entry.isIntersecting)continue;
+    const el=entry.target;
+    if(el.dataset.rendered!=="true"){
+     const p=Number(el.dataset.page),d=pageInfo(p);
+     el.querySelector(".page-head").innerHTML='<span>'+safe(N[d.surah-1])+'</span><span>الجزء '+ar(d.juz)+'</span>';
+     el.querySelector(".page-text").innerHTML=d.html;
+     el.dataset.rendered="true";
+    }
+   }
    if(visible){
     const next=Number(visible.target.dataset.page);
     if(next>=1&&next<=604&&next!==page){page=next;updatePageControls()}
    }
-  },{rootMargin:"-35% 0px -45% 0px",threshold:0});
+  },{rootMargin:"1000px 0px 1000px 0px",threshold:0});
   $("continuousReader").querySelectorAll(".continuous-page").forEach(x=>pageObserver.observe(x))
+ }else{
+  $("continuousReader").querySelectorAll(".continuous-page").forEach(el=>{
+   const p=Number(el.dataset.page),d=pageInfo(p);
+   el.querySelector(".page-head").innerHTML='<span>'+safe(N[d.surah-1])+'</span><span>الجزء '+ar(d.juz)+'</span>';
+   el.querySelector(".page-text").innerHTML=d.html;
+   el.dataset.rendered="true";
+  })
  }
 }
 let readerMode="page";
