@@ -106,3 +106,40 @@ body[data-theme=dark] .zoom-tools output{color:#e6d19a}
  .continuous-page{scroll-margin-top:calc(var(--header-h,68px) + 135px)}
  .continuous-page .page-text{min-height:0}
 }
+
+/* واجهة الأذكار والسبحة — تصميم عربي هادئ ومتوافق مع الهاتف */
+.section-heading{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin:.4rem 0 1rem}
+.section-heading h2{margin:.2rem 0}.section-heading p{margin:.2rem 0;color:#77847b;font-size:.84rem}
+.section-mark{display:grid;place-items:center;min-width:68px;min-height:52px;padding:.5rem;border:1px solid #d8c79c;border-radius:14px;background:#faf5e8;color:#80652f;font-family:var(--font-quran);font-weight:700}
+.azkar-search{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.5rem;margin:.8rem 0}
+.azkar-search input{min-width:0}.azkar-search button{border:1px solid #d6dfd5;border-radius:10px;background:#fff;color:#174f3b;padding:.55rem .8rem}
+.azkar-search button[aria-pressed=true]{background:#e8efe8;border-color:#174f3b}
+.azkar-summary{padding:.65rem .8rem;margin:.7rem 0;background:#edf3eb;border-radius:10px;color:#315b42;font-size:.82rem}
+.zikr{padding:1rem;border-radius:16px;border-color:#e5dfd0;box-shadow:0 4px 16px #382b1010}
+.zikr-meta,.zikr-bottom{display:flex;align-items:center;justify-content:space-between;gap:.6rem}
+.zikr-meta{color:#8a7957;font-size:.76rem}
+.zikr-fav{width:38px;height:38px;border:1px solid #e6dfd1;border-radius:50%;background:#fff;color:#a04a4a;font-size:1.25rem}
+.zikr-fav[aria-pressed=true]{background:#fff0ed;border-color:#e7b9ae}
+.zikr p{font-size:1.55rem;line-height:2.05;color:#263d30;margin:1rem .2rem;text-align:center}
+.zikr-bottom span{color:#7b857c;font-size:.72rem;line-height:1.5}
+.zikr-count{border:1px solid #b8cbb8;background:#edf3eb;color:#174f3b;border-radius:10px;padding:.6rem .75rem;font-weight:700;min-height:42px}
+.zikr-progress,.tas-progress i{display:block;height:6px;border-radius:99px;background:#edf0e9;overflow:hidden;margin-top:.8rem}
+.zikr-progress b,.tas-progress b{display:block;height:100%;border-radius:99px;background:#6e9b79;transition:width .2s}
+.tas-card{max-width:520px;padding:1.2rem;border-radius:22px;background:linear-gradient(160deg,#fff 0%,#f5f8f1 100%);box-shadow:0 10px 28px #243b2b12}
+.counter{width:min(250px,68vw);height:auto;aspect-ratio:1;border:0;border-radius:50%;padding:10px;background:conic-gradient(#b99b5a var(--progress,0%),#e5eadf 0);box-shadow:0 8px 24px #233b2c16}
+.counter-inner{width:100%;height:100%;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;background:#fff;border:1px solid #e7e2d5;text-align:center;padding:.7rem}
+.counter-inner small{max-width:90%;color:#8a7957;font-family:var(--font-quran);font-size:1.05rem;line-height:1.5}
+.counter-inner strong{font-size:3.5rem;line-height:1.1;color:#174f3b;font-variant-numeric:tabular-nums}
+.counter-inner span{font-size:.76rem;color:#7b857c}
+.tas-progress{margin:.2rem 0 1rem}
+.tas-progress>div{display:flex;justify-content:space-between;gap:.5rem;font-size:.78rem;color:#68756c}
+.tas-progress strong{color:#174f3b;font-variant-numeric:tabular-nums}
+.tas-card>.tap{min-height:66px;border-radius:18px;font-size:1.25rem;box-shadow:0 5px 14px #174f3b2b;touch-action:manipulation}
+.tas-actions{justify-content:space-between}
+.tas-actions button{min-height:42px;padding:.5rem .8rem;border:1px solid #d8dfd6;border-radius:10px;background:#fff;color:#174f3b}
+.today-total{text-align:center;color:#315b42;background:#edf3eb;border-radius:12px;padding:.75rem}
+body[data-theme=dark] .section-mark,body[data-theme=dark] .zikr,body[data-theme=dark] .azkar-search input,body[data-theme=dark] .azkar-search button,body[data-theme=dark] .zikr-fav,body[data-theme=dark] .tas-card,body[data-theme=dark] .counter-inner,body[data-theme=dark] .tas-actions button{background:#1b261f;color:#e7eee9;border-color:#3c5142}
+body[data-theme=dark] .zikr p,body[data-theme=dark] .counter-inner strong{color:#e7eee9}
+body[data-theme=dark] .counter-inner small,body[data-theme=dark] .tas-progress strong{color:#e6d19a}
+body[data-theme=dark] .azkar-summary,body[data-theme=dark] .today-total{background:#22332a;color:#cfe8da}
+@media(max-width:560px){.section-heading{align-items:flex-start}.azkar-search{grid-template-columns:1fr}.azkar-search button{min-height:42px}.zikr{padding:.8rem}.zikr p{font-size:1.35rem}.counter{width:min(230px,68vw)}.counter-inner strong{font-size:3rem}.tas-actions{justify-content:center}}
