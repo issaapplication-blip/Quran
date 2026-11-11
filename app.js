@@ -115,18 +115,92 @@ function azkar(){
   return '<article class="zikr"><div class="zikr-meta"><span>التكرار المطلوب: '+ar(x.count)+'</span><button class="zikr-fav" type="button" data-fav="'+x.id+'" aria-label="'+(fav?"إزالة من المفضلة":"إضافة إلى المفضلة")+'" aria-pressed="'+fav+'">'+(fav?"♥":"♡")+'</button></div><p>'+safe(x.text)+'</p><div class="zikr-bottom"><span>'+safe(x.source)+'</span><button class="zikr-count" type="button" data-z="'+x.id+'">'+(n>=x.count?"✓ اكتمل":ar(n)+" / "+ar(x.count)+" · تسبيح")+'</button></div><div class="zikr-progress" role="progressbar" aria-valuemin="0" aria-valuemax="'+x.count+'" aria-valuenow="'+n+'"><b style="width:'+Math.min(100,n/x.count*100)+'%"></b></div></article>';
  }).join("");
 }
-function currentDhikr(){return $("dhikr").value==="custom"?$("custom").value.trim()||"ذكر مخصص":$("dhikr").value}
-function renderTas(){
- $("count").textContent=ar(cnt);$("currentDhikr").textContent=currentDhikr();
- $("today").textContent="مجموع ما سبّحته اليوم: "+ar(today)+" مرة";
- const pct=target?Math.min(100,cnt/target*100):0;
- $("counterDial").style.setProperty("--progress",pct+"%");
- $("counterDial").setAttribute("aria-label","عدد التسبيحات "+cnt+" من "+(target||"دون هدف"));
- $("targetProgress").textContent=target?ar(Math.min(cnt,target))+" / "+ar(target):ar(cnt)+" · بلا هدف";
- $("targetBar").style.width=pct+"%";
+const BUILTIN_DHIKRS=[
+ {value:"سُبْحَانَ اللَّهِ",text:"سُبْحَانَ اللَّهِ"},
+ {value:"الْحَمْدُ لِلَّهِ",text:"الْحَمْدُ لِلَّهِ"},
+ {value:"اللَّهُ أَكْبَرُ",text:"اللَّهُ أَكْبَرُ"},
+ {value:"لَا إِلَهَ إِلَّا اللَّهُ",text:"لَا إِلَهَ إِلَّا اللَّهُ"},
+ {value:"أَسْتَغْفِرُ اللَّهَ",text:"أَسْتَغْفِرُ اللَّهَ"},
+ {value:"اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ",text:"اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ"}
+];
+let customDhikrs=[],soundEnabled=false,beadTone="dark",audioContext=null,ignoreTapClickUntil=0,swipeStartX=null;
+function saveCustomDhikrs(){ls.set("tasbih-custom-dhikrs",JSON.stringify(customDhikrs))}
+function syncDhikrSelect(selected){
+ const options=BUILTIN_DHIKRS.map(x=>'<option value="'+safe(x.value)+'">'+safe(x.text)+'</option>').join("")+
+  customDhikrs.map(x=>'<option value="custom:'+safe(x.id)+'">'+safe(x.text)+'</option>').join("");
+ $("dhikr").innerHTML=options;
+ const exists=Array.from($("dhikr").options).some(x=>x.value===selected);
+ $("dhikr").value=exists?selected:BUILTIN_DHIKRS[0].value;
 }
-function saveTas(){ls.set("tasbih",JSON.stringify({day:localDay(),cnt,target,today,dhikr:$("dhikr").value,custom:$("custom").value}))}
-function loadTas(){let v={};try{v=JSON.parse(ls.get("tasbih")||"{}")}catch{}let d=localDay();today=v.day===d?(v.today||0):0;cnt=v.day===d?(v.cnt||0):0;target=v.target??33;$("target").value=target;$("dhikr").value=v.dhikr||"سُبْحَانَ اللَّهِ";$("custom").value=v.custom||"";$("custom").hidden=$("dhikr").value!=="custom";renderTas()}
+function currentDhikr(){
+ const value=$("dhikr").value;
+ if(value.startsWith("custom:")){
+  const item=customDhikrs.find(x=>String(x.id)===value.slice(7));
+  if(item)return item.text;
+ }
+ return $("dhikr").selectedOptions[0]?.textContent||BUILTIN_DHIKRS[0].text;
+}
+function renderCustomDhikrList(){
+ const box=$("customDhikrList");
+ if(!customDhikrs.length){box.innerHTML='<p class="tas-no-custom">لم تضف أذكاراً خاصة بعد.</p>';return}
+ box.innerHTML=customDhikrs.map(x=>'<div class="tas-custom-item"><span>'+safe(x.text)+'</span><div><button type="button" data-custom-use="'+safe(x.id)+'">استخدم</button><button type="button" data-custom-delete="'+safe(x.id)+'" class="delete">حذف</button></div></div>').join("");
+}
+function renderTas(){
+ $("count").textContent=ar(cnt);
+ $("countTarget").textContent=target?"/"+ar(target):"/∞";
+ $("currentDhikr").textContent=currentDhikr();
+ $("today").textContent="مجموع ما سبّحته اليوم: "+ar(today)+" مرة";
+ $("rounds").textContent="الجولات : "+ar(target?Math.floor(cnt/target)+1:1);
+ $("dhikrPosition").textContent=ar($("dhikr").selectedIndex+1)+" / "+ar($("dhikr").options.length);
+ $("tap").setAttribute("aria-label","الذكر "+currentDhikr()+"، العدد "+cnt+"، اضغط أو اسحب للعد");
+ $("tap").dataset.tone=beadTone;
+ $("soundToggle").textContent=soundEnabled?"🔊":"🔇";
+ $("soundToggle").setAttribute("aria-pressed",String(soundEnabled));
+ $("soundToggle").setAttribute("aria-label",soundEnabled?"إيقاف الصوت":"تشغيل الصوت");
+ $("vibrateToggle").setAttribute("aria-pressed",String($("vibrate").checked));
+}
+function saveTas(){
+ ls.set("tasbih",JSON.stringify({
+  day:localDay(),cnt,target,today,dhikr:$("dhikr").value,
+  vibrate:$("vibrate").checked,soundEnabled,beadTone
+ }));
+}
+function loadTas(){
+ let v={};try{v=JSON.parse(ls.get("tasbih")||"{}")}catch{}
+ try{customDhikrs=JSON.parse(ls.get("tasbih-custom-dhikrs")||"[]");if(!Array.isArray(customDhikrs))customDhikrs=[]}catch{customDhikrs=[]}
+ if(v.dhikr==="custom"&&String(v.custom||"").trim()){
+  if(!customDhikrs.some(x=>x.text===String(v.custom).trim()))customDhikrs.unshift({id:"legacy",text:String(v.custom).trim()});
+  v.dhikr="custom:legacy";saveCustomDhikrs();
+ }
+ const d=localDay();today=v.day===d?(Number(v.today)||0):0;cnt=v.day===d?(Number(v.cnt)||0):0;
+ target=v.target??33;
+ syncDhikrSelect(v.dhikr||BUILTIN_DHIKRS[0].value);
+ $("target").value=String(target);
+ $("vibrate").checked=v.vibrate!==false;
+ soundEnabled=v.soundEnabled===true;
+ beadTone=["dark","green","amber"].includes(v.beadTone)?v.beadTone:"dark";
+ renderCustomDhikrList();renderTas();
+}
+function playTasTone(){
+ try{
+  const AudioCtx=window.AudioContext||window.webkitAudioContext;if(!AudioCtx)return;
+  audioContext=audioContext||new AudioCtx();
+  if(audioContext.state==="suspended")audioContext.resume();
+  const osc=audioContext.createOscillator(),gain=audioContext.createGain();
+  osc.type="sine";osc.frequency.value=740;gain.gain.setValueAtTime(.0001,audioContext.currentTime);
+  gain.gain.exponentialRampToValueAtTime(.045,audioContext.currentTime+.012);
+  gain.gain.exponentialRampToValueAtTime(.0001,audioContext.currentTime+.09);
+  osc.connect(gain);gain.connect(audioContext.destination);osc.start();osc.stop(audioContext.currentTime+.1);
+ }catch{}
+}
+function addTasCount(){
+ cnt++;today++;renderTas();
+ $("message").textContent=target&&cnt%target===0?"أتممت جولة كاملة، بارك الله فيك.":"تقبّل الله ذكرك.";
+ if($("vibrate").checked&&navigator.vibrate)navigator.vibrate(22);
+ if(soundEnabled)playTasTone();
+ saveTas();
+}
+
 async function init(){try{let [q,p,a]=await Promise.all(["quran-uthmani.txt","mushaf-pages.json","adhkar-morning-evening.json"].map(x=>fetch("./data/"+x)));if(!q.ok||!p.ok||!a.ok)throw Error("تعذر تحميل ملفات المحتوى");let qb=await q.arrayBuffer(),fp="";if(window.crypto&&crypto.subtle){if(await sha256(qb)!==QURAN_SHA256)throw Error("تم اكتشاف تغيير في ملف نص القرآن عن نسخة Tanzil المعتمدة، لذلك أُوقف عرض النص. أعد تحميل الصفحة أو ثبّت النسخة الأصلية.");fp=" وبصمة SHA-256 للنص مطابقة."}Q=parse(new TextDecoder("utf-8").decode(qb));M=await p.json();A=await a.json();if(M.pages.length!==604||M.juz.length!==30)throw Error("بيانات الصفحات ناقصة");$("page").innerHTML=Array.from({length:604},(_,i)=>'<option value="'+(i+1)+'">صفحة '+ar(i+1)+'</option>').join("");$("surah").innerHTML=N.map((x,i)=>'<option value="'+(i+1)+'">'+ar(i+1)+'. '+x+'</option>').join("");$("juz").innerHTML=M.juz.map(x=>'<option value="'+x.juz+'">الجزء '+ar(x.juz)+'</option>').join("");let b=null;try{b=JSON.parse(ls.get("mushaf-bookmark")||"null")}catch{}page=Math.min(604,Math.max(1,+b?.page||1));applyPrefs();render();surahs();azkar();loadTas();$("status").textContent="تم التحقق: ١١٤ سورة، ٦٢٣٦ آية، ٦٠٤ صفحات، ٣٠ جزءاً."+fp}catch(e){$("status").textContent=e.message;$("status").classList.add("error")}}
 document.querySelectorAll("nav button[data-tab]").forEach(b=>b.onclick=()=>tab(b.dataset.tab));$("page").onchange=e=>go(e.target.value);$("range").oninput=e=>go(e.target.value);$("prev").onclick=()=>go(page-1);$("next").onclick=()=>go(page+1);$("surah").onchange=e=>{go(pageFor(+e.target.value,1));tab("quran")};$("juz").onchange=e=>{let j=M.juz.find(x=>x.juz===+e.target.value);go(pageFor(j.surah,j.ayah))};$("save").onclick=()=>{let s=M.pages[page-1];ls.set("mushaf-bookmark",JSON.stringify({page,surah:s.sura,ayah:s.aya}));$("status").textContent="حُفظ موضع القراءة"};
 function setSize(v){
@@ -192,12 +266,73 @@ $("azkarList").onclick=e=>{
  const p=getAzkarProgress(),item=A.find(x=>String(x.id)===String(b.dataset.z));if(!item)return;
  p.c[item.id]=Math.min(item.count,(p.c[item.id]||0)+1);ls.set("azkar-progress",JSON.stringify(p));azkar();
 };
-$("dhikr").onchange=()=>{$("custom").hidden=$("dhikr").value!=="custom";renderTas();saveTas()};
-$("custom").oninput=()=>{renderTas();saveTas()};
+function moveDhikr(step){
+ const select=$("dhikr"),next=(select.selectedIndex+step+select.options.length)%select.options.length;
+ select.selectedIndex=next;cnt=0;renderTas();saveTas();
+}
+$("dhikrPrev").onclick=()=>moveDhikr(-1);
+$("dhikrNext").onclick=()=>moveDhikr(1);
+$("dhikr").onchange=()=>{cnt=0;renderTas();saveTas()};
 $("target").onchange=e=>{target=+e.target.value;renderTas();saveTas()};
-$("tap").onclick=()=>{cnt++;today++;renderTas();$("message").textContent=target&&cnt>=target?"اكتمل هدفك، بارك الله فيك. تقبّل الله ذكرك.":"تقبّل الله ذكرك.";if($("vibrate").checked&&navigator.vibrate)navigator.vibrate(22);saveTas()};
-$("undo").onclick=()=>{if(cnt){cnt--;today=Math.max(0,today-1);renderTas();saveTas()}};
-$("reset").onclick=()=>{cnt=0;renderTas();saveTas();$("message").textContent="أُعيد ضبط العداد.";};
+$("tap").onclick=()=>{if(Date.now()<ignoreTapClickUntil)return;addTasCount()};
+$("tap").addEventListener("touchstart",e=>{if(e.touches.length===1)swipeStartX=e.touches[0].clientX},{passive:true});
+$("tap").addEventListener("touchend",e=>{
+ if(swipeStartX!==null&&e.changedTouches.length){
+  const dx=e.changedTouches[0].clientX-swipeStartX;
+  if(Math.abs(dx)>26){e.preventDefault();ignoreTapClickUntil=Date.now()+500;addTasCount()}
+ }
+ swipeStartX=null;
+},{passive:false});
+$("undo").onclick=()=>{if(cnt){cnt--;today=Math.max(0,today-1);renderTas();saveTas();$("message").textContent="تم التراجع عن آخر تسبيحة."}};
+$("reset").onclick=()=>{cnt=0;renderTas();saveTas();$("message").textContent="أُعيد ضبط العداد الحالي."};
+function toggleTasSettings(){
+ $("tasSettings").hidden=!$("tasSettings").hidden;
+}
+$("tasSettingsToggle").onclick=toggleTasSettings;
+$("tasMenuToggle").onclick=toggleTasSettings;
+$("vibrateToggle").onclick=()=>{$("vibrate").checked=!$("vibrate").checked;renderTas();saveTas()};
+$("soundToggle").onclick=()=>{soundEnabled=!soundEnabled;renderTas();saveTas();if(soundEnabled)playTasTone()};
+$("tasPalette").onclick=()=>{
+ const tones=["dark","green","amber"],i=tones.indexOf(beadTone);beadTone=tones[(i+1)%tones.length];
+ renderTas();saveTas();
+ $("message").textContent=beadTone==="dark"?"لون الخرز: أسود لامع":beadTone==="green"?"لون الخرز: أخضر":"لون الخرز: ذهبي";
+};
+$("addCustomToggle").onclick=()=>{
+ $("customDhikrForm").hidden=!$("customDhikrForm").hidden;
+ if(!$("customDhikrForm").hidden)$("newDhikrText").focus();
+};
+$("cancelCustomDhikr").onclick=()=>{$("customDhikrForm").hidden=true;$("newDhikrText").value=""};
+$("customDhikrForm").onsubmit=e=>{
+ e.preventDefault();
+ const phrase=$("newDhikrText").value.trim();
+ if(!phrase){$("newDhikrText").focus();return}
+ if(customDhikrs.some(x=>x.text===phrase)){
+  $("message").textContent="هذا الذكر موجود بالفعل.";return;
+ }
+ const id=Date.now().toString(36);
+ customDhikrs.push({id,text:phrase});saveCustomDhikrs();
+ syncDhikrSelect("custom:"+id);cnt=0;
+ $("newDhikrText").value="";$("customDhikrForm").hidden=true;
+ renderCustomDhikrList();renderTas();saveTas();
+ $("message").textContent="تم حفظ الذكر الخاص على هذا الجهاز.";
+};
+$("customDhikrList").onclick=e=>{
+ const use=e.target.closest("[data-custom-use]");
+ const del=e.target.closest("[data-custom-delete]");
+ if(use){
+  syncDhikrSelect("custom:"+use.dataset.customUse);cnt=0;renderTas();saveTas();
+  $("message").textContent="تم اختيار الذكر الخاص.";return;
+ }
+ if(del){
+  const id=del.dataset.customDelete;
+  customDhikrs=customDhikrs.filter(x=>String(x.id)!==id);saveCustomDhikrs();
+  const current=$("dhikr").value;
+  syncDhikrSelect(current==="custom:"+id?BUILTIN_DHIKRS[0].value:current);
+  if(current==="custom:"+id)cnt=0;
+  renderCustomDhikrList();renderTas();saveTas();
+  $("message").textContent="تم حذف الذكر الخاص من هذا الجهاز.";
+ }
+};
 window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();window._prompt=e;$("install").hidden=false});$("install").onclick=async()=>{if(window._prompt){window._prompt.prompt();await window._prompt.userChoice;window._prompt=null;$("install").hidden=true}};
 if("serviceWorker"in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});init();
 // إخفاء زر التثبيت بعد نجاح تثبيت التطبيق على الجهاز.
