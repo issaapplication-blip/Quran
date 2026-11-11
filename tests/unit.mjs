@@ -23,6 +23,7 @@ assert.equal(manifest.dir, "rtl");
 assert.equal(manifest.display, "standalone");
 assert.ok(manifest.icons.some((icon) => icon.sizes === "192x192"));
 assert.ok(manifest.icons.some((icon) => icon.sizes === "512x512"));
+assert.ok(manifest.icons.some((icon) => icon.src === "./assets/icon.svg"), "PWA icon must use the Mushaf cover artwork");
 
 const html = (await read("index.html")).toString("utf8");
 for (const asset of ["./app.js", "./features.js", "./styles.css", "./manifest.webmanifest"]) {
