@@ -2,7 +2,90 @@
 <section id="quran" class="tab active"><div class="intro"><h1>وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا</h1><p>مصحف المدينة · ٦٠٤ صفحات · ٣٠ جزءاً</p></div><div class="selectors"><label>الصفحة<select id="page"></select></label><label>السورة<select id="surah"></select></label><label>الجزء<select id="juz"></select></label></div><div class="reader-controls"><div class="tools page-tools"><button id="prev" type="button">السابق</button><button id="save" type="button">حفظ الموضع</button><button id="next" type="button">التالي</button><button id="modeToggle" type="button" aria-pressed="false">تمرير مستمر</button><button id="fullScreen" type="button">ملء الشاشة</button></div><div class="zoom-tools"><button id="smaller" type="button" aria-label="تصغير الخط">−</button><label for="sizeRange">حجم الخط <output id="sizeValue">١٠٠٪</output><input id="sizeRange" type="range" min="1.2" max="2.8" step="0.05" value="1.72" aria-label="تغيير حجم خط القرآن"></label><button id="larger" type="button" aria-label="تكبير الخط">+</button><button id="resetSize" type="button" aria-label="إعادة حجم الخط">إعادة</button></div></div><div class="themes" aria-label="ألوان صفحة المصحف"><button data-theme="paper" class="active">فاتح</button><button data-theme="cream">سيبيا</button><button data-theme="dark">ليلي</button><button id="findToggle" type="button">بحث</button></div><div id="searchBox" hidden><input id="query" placeholder="ابحث في القرآن"><button id="clear">مسح</button></div><div id="results" hidden></div><article id="mushafPage" class="mushaf"><div class="page-head"><span id="pageSurah">الفاتحة</span><span id="pageJuz">الجزء ١</span></div><div id="pageText">تحميل...</div><div class="page-foot"><span id="pageNum">١</span><span>المصحف الشريف</span></div></article><div id="continuousReader" class="continuous-reader" hidden aria-label="القرآن الكريم بالتمرير المستمر"></div><label class="page-range-label" for="range">التنقّل بين صفحات المصحف</label><input id="range" type="range" min="1" max="604" value="1"><p id="status" role="status">جارٍ التحقق من النص والصفحات...</p></section>
 <section id="surahs" class="tab"><h2>فهرس السور</h2><input id="filter" placeholder="ابحث عن سورة"><div id="surahList" class="surahs"></div></section>
 <section id="azkar" class="tab"><div class="section-heading"><div><h2>الأذكار اليومية</h2><p>أذكار مأثورة مرتبة حسب الوقت والمناسبة</p></div><span class="section-mark">ذِكْر</span></div><div class="azkar-search"><input id="azkarSearch" type="search" placeholder="ابحث في الأذكار..." aria-label="البحث في الأذكار"><button id="azkarFavorites" type="button" aria-pressed="false">♡ المفضلة</button></div><div class="categories"><button class="active" data-cat="morning">الصباح</button><button data-cat="evening">المساء</button><button data-cat="after">بعد الصلاة</button><button data-cat="sleep">قبل النوم</button><button data-cat="wake">الاستيقاظ</button><button data-cat="mosque">المسجد</button><button data-cat="dua">أدعية</button></div><div id="azkarSummary" class="azkar-summary" aria-live="polite"></div><div id="azkarList"></div></section>
-<section id="tasbih" class="tab"><div class="section-heading"><div><h2>السبحة الإلكترونية</h2><p>عداد هادئ لمتابعة وردك اليومي</p></div><span class="section-mark">سُبْحَانَ الله</span></div><div class="tas-card"><label>اختر الذكر<select id="dhikr"><option>سُبْحَانَ اللَّهِ</option><option>الْحَمْدُ لِلَّهِ</option><option>اللَّهُ أَكْبَرُ</option><option>لَا إِلَهَ إِلَّا اللَّهُ</option><option>أَسْتَغْفِرُ اللَّهَ</option><option>اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</option><option value="custom">ذكر مخصص</option></select></label><input id="custom" placeholder="اكتب الذكر الذي تريد تكراره" hidden><div class="counter" id="counterDial" role="img" aria-label="عداد التسبيح"><div class="counter-inner"><small id="currentDhikr">سُبْحَانَ اللَّهِ</small><strong id="count">٠</strong><span>عدد التسبيحات</span></div></div><div class="tas-progress"><div><span>تقدم الهدف</span><strong id="targetProgress">٠ / ٣٣</strong></div><i><b id="targetBar"></b></i></div><label>الهدف اليومي<select id="target"><option value="33">٣٣ مرة</option><option value="99">٩٩ مرة</option><option value="100">١٠٠ مرة</option><option value="300">٣٠٠ مرة</option><option value="1000">١٠٠٠ مرة</option><option value="0">بلا هدف</option></select></label><button id="tap" class="tap">اضغط للتسبيح</button><div class="tools tas-actions"><button id="undo" type="button">↶ تراجع</button><button id="reset" type="button">إعادة العداد</button><label><input id="vibrate" type="checkbox" checked> اهتزاز خفيف</label></div><p id="message" role="status">يُحفظ تقدمك تلقائياً على هذا الجهاز.</p></div><p id="today" class="today-total"></p></section><section id="qibla" class="tab feature-tab"><h2>🧭 بوصلة القبلة</h2><p class="feature-lead">حدّد موقعك لحساب اتجاه القبلة بدقة من أي بلد ومنطقة، ثم شغّل مستشعر الاتجاه لتتحرك البوصلة مع هاتفك.</p>
+<section id="tasbih" class="tab tasbih-tab">
+  <div class="tas-toolbar">
+    <div class="tas-toolbar-heading">
+      <h2>التسبيح</h2>
+      <span id="dhikrPosition">١ / ٦</span>
+    </div>
+    <div class="tas-toolbar-actions">
+      <button id="tasMenuToggle" type="button" aria-label="القائمة والإعدادات" title="الإعدادات">⋮</button>
+      <button id="reset" type="button" aria-label="إعادة العداد" title="إعادة العداد">↻</button>
+      <button id="soundToggle" type="button" aria-label="تشغيل الصوت" aria-pressed="false" title="الصوت">🔇</button>
+      <button id="vibrateToggle" type="button" aria-label="تشغيل الاهتزاز" aria-pressed="true" title="الاهتزاز">▥</button>
+    </div>
+  </div>
+
+  <div class="tas-dhikr-card">
+    <small>الذكر الحالي</small>
+    <div class="tas-dhikr-navigation">
+      <button id="dhikrPrev" type="button" aria-label="الذكر السابق">‹</button>
+      <strong id="currentDhikr">سُبْحَانَ اللَّهِ</strong>
+      <button id="dhikrNext" type="button" aria-label="الذكر التالي">›</button>
+    </div>
+    <select id="dhikr" class="tas-accessible-select" aria-label="اختيار الذكر">
+      <option>سُبْحَانَ اللَّهِ</option>
+      <option>الْحَمْدُ لِلَّهِ</option>
+      <option>اللَّهُ أَكْبَرُ</option>
+      <option>لَا إِلَهَ إِلَّا اللَّهُ</option>
+      <option>أَسْتَغْفِرُ اللَّهَ</option>
+      <option>اللَّهُمَّ صَلِّ عَلَى مُحَمَّدٍ</option>
+    </select>
+  </div>
+
+  <div class="tas-count-block">
+    <div class="tas-count-line"><strong id="count">٠</strong><span id="countTarget">/٣٣</span></div>
+    <p id="rounds">الجولات : ١</p>
+  </div>
+
+  <div class="tas-beads-area">
+    <button id="tap" class="tas-beads-button" type="button" aria-label="اضغط أو اسحب على خرزات السبحة للعد">
+      <span class="tas-thread" aria-hidden="true"></span>
+      <span class="tas-bead" aria-hidden="true"></span>
+      <span class="tas-bead" aria-hidden="true"></span>
+      <span class="tas-bead" aria-hidden="true"></span>
+      <span class="tas-bead" aria-hidden="true"></span>
+      <span class="tas-bead" aria-hidden="true"></span>
+      <span class="tas-bead" aria-hidden="true"></span>
+      <span class="tas-bead" aria-hidden="true"></span>
+    </button>
+    <p class="tas-count-hint">اضغط أو اسحب للعد</p>
+  </div>
+
+  <div class="tas-bottom-controls">
+    <button id="tasPalette" type="button" aria-label="تغيير لون الخرز" title="تغيير لون الخرز">◉</button>
+    <button id="undo" type="button">↶ تراجع</button>
+    <button id="tasSettingsToggle" type="button" aria-label="إعدادات السبحة" title="الإعدادات">☷</button>
+  </div>
+
+  <div id="tasSettings" class="tas-settings" hidden>
+    <label>الهدف اليومي
+      <select id="target">
+        <option value="33">٣٣ مرة</option>
+        <option value="99">٩٩ مرة</option>
+        <option value="100">١٠٠ مرة</option>
+        <option value="300">٣٠٠ مرة</option>
+        <option value="1000">١٠٠٠ مرة</option>
+        <option value="0">بلا هدف</option>
+      </select>
+    </label>
+    <label class="tas-vibration-option"><input id="vibrate" type="checkbox" checked> اهتزاز خفيف عند العد</label>
+    <button id="addCustomToggle" class="tas-add-custom" type="button">＋ إضافة ذكر خاص</button>
+
+    <form id="customDhikrForm" class="tas-custom-form" hidden>
+      <label for="newDhikrText">اكتب الذكر الخاص</label>
+      <textarea id="newDhikrText" rows="2" maxlength="140" required placeholder="مثال: سبحان الله وبحمده"></textarea>
+      <div class="tas-custom-form-actions">
+        <button type="submit">حفظ الذكر</button>
+        <button id="cancelCustomDhikr" type="button" class="secondary">إلغاء</button>
+      </div>
+    </form>
+    <div id="customDhikrList" class="tas-custom-list" aria-live="polite"></div>
+  </div>
+
+  <p id="message" class="tas-message" role="status">يُحفظ تقدمك تلقائياً على هذا الجهاز.</p>
+  <p id="today" class="today-total"></p>
+</section><section id="qibla" class="tab feature-tab"><h2>🧭 بوصلة القبلة</h2><p class="feature-lead">حدّد موقعك لحساب اتجاه القبلة بدقة من أي بلد ومنطقة، ثم شغّل مستشعر الاتجاه لتتحرك البوصلة مع هاتفك.</p>
 <div class="feature-actions"><button id="locateQibla" type="button">📍 تحديد موقعي</button><button id="enableCompass" type="button">🧭 تشغيل البوصلة</button></div>
 <div id="compassStage" class="compass-stage no-sensor"><div class="compass-pointer" aria-hidden="true"></div><div id="compassDial" class="compass-dial" role="img" aria-label="بوصلة القبلة"><span class="dial-label dial-n">شمال</span><span class="dial-label dial-e">شرق</span><span class="dial-label dial-s">جنوب</span><span class="dial-label dial-w">غرب</span><div id="qiblaArm" class="qibla-arm" hidden><span class="qibla-icon">🕋</span></div></div></div>
 <div class="qibla-readout"><strong id="qiblaDegrees">—</strong><span id="qiblaDirection"></span><small id="qiblaDistance"></small></div>
