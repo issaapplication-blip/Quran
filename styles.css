@@ -143,3 +143,81 @@ body[data-theme=dark] .zikr p,body[data-theme=dark] .counter-inner strong{color:
 body[data-theme=dark] .counter-inner small,body[data-theme=dark] .tas-progress strong{color:#e6d19a}
 body[data-theme=dark] .azkar-summary,body[data-theme=dark] .today-total{background:#22332a;color:#cfe8da}
 @media(max-width:560px){.section-heading{align-items:flex-start}.azkar-search{grid-template-columns:1fr}.azkar-search button{min-height:42px}.zikr{padding:.8rem}.zikr p{font-size:1.35rem}.counter{width:min(230px,68vw)}.counter-inner strong{font-size:3rem}.tas-actions{justify-content:center}}
+
+
+/* السبحة المطوّرة — بطاقة الذكر والخرزات كما في الصورة المرجعية */
+.tasbih-tab{max-width:760px;margin:0 auto;padding:.2rem 0 1.25rem;background:#f8f6ef;color:#142c37}
+.tas-toolbar{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin:.15rem 0 1rem}
+.tas-toolbar-heading{display:flex;align-items:baseline;gap:.55rem}
+.tas-toolbar-heading h2{margin:0;color:#142c37;font:700 1.75rem/1.2 var(--font-quran)}
+.tas-toolbar-heading span{color:#5d6970;font-size:.9rem;font-weight:700}
+.tas-toolbar-actions{display:flex;align-items:center;gap:.35rem}
+.tas-toolbar-actions button{width:42px;height:42px;padding:0;display:grid;place-items:center;border:0;border-radius:12px;background:transparent;color:#1b3542;font-size:1.55rem;font-weight:700}
+.tas-toolbar-actions button:active{background:#e7eee9}
+.tas-dhikr-card{position:relative;overflow:hidden;min-height:154px;margin:.5rem 0 2.7rem;padding:1.2rem 1rem;border:5px double #b99b69;border-radius:34px;background:linear-gradient(115deg,#15483f 0%,#0e3d3d 48%,#12343b 100%);box-shadow:0 5px 0 #0b2b2b,0 10px 18px #112e2926;color:#f8f4e8;text-align:center}
+.tas-dhikr-card:before{content:"";position:absolute;inset:8px;border:1px solid #c4b17b;border-radius:25px;pointer-events:none;opacity:.8}
+.tas-dhikr-card:after{content:"";position:absolute;inset:18px;background:radial-gradient(circle at 7% 25%,transparent 0 5px,#c3ad72 6px,transparent 7px),radial-gradient(circle at 93% 25%,transparent 0 5px,#c3ad72 6px,transparent 7px),radial-gradient(circle at 7% 78%,transparent 0 5px,#c3ad72 6px,transparent 7px),radial-gradient(circle at 93% 78%,transparent 0 5px,#c3ad72 6px,transparent 7px);opacity:.23;pointer-events:none}
+.tas-dhikr-card>small{position:relative;z-index:1;display:block;margin:.1rem 0 .35rem;color:#d9c68e;font:1.05rem var(--font-quran)}
+.tas-dhikr-navigation{position:relative;z-index:1;display:grid;grid-template-columns:36px minmax(0,1fr) 36px;align-items:center;gap:.35rem;min-height:72px}
+.tas-dhikr-navigation strong{font:700 clamp(1.75rem,6vw,2.55rem)/1.45 var(--font-quran);color:#fff9e9;overflow-wrap:anywhere}
+.tas-dhikr-navigation button{width:36px;height:44px;padding:0;border:0;background:transparent;color:#d9c68e;font-size:2rem;line-height:1}
+.tas-accessible-select{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
+.tas-count-block{margin:.4rem .1rem .4rem;text-align:start}
+.tas-count-line{display:flex;align-items:baseline;gap:.35rem;direction:ltr;justify-content:flex-end}
+.tas-count-line strong{font-size:clamp(4.5rem,18vw,6.4rem);line-height:1;color:#142f3c;font-weight:500;letter-spacing:-.06em;font-variant-numeric:tabular-nums}
+.tas-count-line span{font-size:clamp(2rem,7vw,3rem);line-height:1;color:#53616a;font-weight:700;font-variant-numeric:tabular-nums}
+#rounds{margin:.7rem 0 0;font:700 1.35rem/1.5 var(--font-quran);color:#1b3542}
+.tas-beads-area{position:relative;margin:1.8rem -1rem 1rem;text-align:center}
+.tas-beads-button{position:relative;display:flex;align-items:center;justify-content:center;gap:clamp(7px,2.1vw,15px);width:100%;height:220px;padding:0 .25rem;overflow:hidden;border:0;border-radius:0;background:transparent;box-shadow:none;touch-action:pan-y;cursor:pointer}
+.tas-thread{position:absolute;z-index:0;left:-8%;right:-8%;top:50%;height:4px;border-radius:50%;background:linear-gradient(180deg,#d8cbb2,#766d5e 52%,#e7d9c3);box-shadow:0 2px 4px #0002;transform:rotate(-5deg)}
+.tas-bead{position:relative;z-index:1;flex:0 0 clamp(68px,20.5vw,106px);width:clamp(68px,20.5vw,106px);aspect-ratio:1;border-radius:50%;background:radial-gradient(ellipse at 30% 21%,#899295 0%,#424b4e 12%,#242b2e 43%,#101517 78%,#080d0f 100%);box-shadow:inset -8px -10px 16px #0008,inset 4px 5px 12px #a2aaad55,0 13px 15px #0003;transition:transform .12s}
+.tas-bead:before{content:"";position:absolute;top:15%;left:22%;width:34%;height:13%;border-radius:50%;background:linear-gradient(140deg,#e0e5e3a8,#8f999b35 70%,transparent);filter:blur(2px);transform:rotate(-22deg)}
+.tas-beads-button:active .tas-bead{transform:translateY(2px) scale(.98)}
+.tas-beads-button[data-tone=green] .tas-bead{background:radial-gradient(ellipse at 30% 20%,#a2ba9d 0%,#3b765b 22%,#164631 62%,#082a23 100%);box-shadow:inset -8px -10px 16px #001d16a8,inset 4px 5px 12px #d5ead066,0 13px 15px #0003}
+.tas-beads-button[data-tone=amber] .tas-bead{background:radial-gradient(ellipse at 30% 20%,#f3dfaa 0%,#c49b50 24%,#795324 66%,#39240e 100%);box-shadow:inset -8px -10px 16px #2a160da8,inset 4px 5px 12px #fff1c766,0 13px 15px #0003}
+.tas-count-hint{margin:.35rem 0 1.1rem;color:#647178;font:1.25rem var(--font-quran)}
+.tas-bottom-controls{display:flex;align-items:center;justify-content:space-between;gap:.8rem;margin:.3rem 0 .9rem;padding:0 .2rem}
+.tas-bottom-controls button{min-height:64px;border:0;border-radius:50px;background:#eef4f6;color:#1b3542;font:700 1.25rem var(--font-quran);box-shadow:0 3px 9px #19333d10}
+#tasPalette,#tasSettingsToggle{width:62px;height:62px;font-size:1.7rem}
+#undo{min-width:142px;padding:.6rem 1.4rem;background:#edf3f6;font-size:1.45rem}
+.tas-settings{display:grid;gap:.75rem;margin:.9rem 0;padding:1rem;border:1px solid #dbe2dd;border-radius:18px;background:#fff}
+.tas-settings[hidden],.tas-custom-form[hidden]{display:none!important}
+.tas-settings>label:not(.tas-vibration-option),.tas-custom-form>label{display:grid;gap:.3rem;color:#55656c;font-size:.85rem}
+.tas-vibration-option{display:flex;align-items:center;gap:.5rem;color:#50616a;font-size:.86rem}
+.tas-vibration-option input{width:auto;min-height:auto;accent-color:#174f3b}
+.tas-add-custom,.tas-custom-form-actions button{min-height:44px;padding:.6rem .9rem;border:0;border-radius:11px;background:#174f3b;color:white;font-weight:700}
+.tas-custom-form{display:grid;gap:.5rem;padding:.8rem;background:#f4f7f3;border:1px solid #e0e7dd;border-radius:13px}
+.tas-custom-form textarea{width:100%;resize:vertical;border:1px solid #d6dfd5;border-radius:10px;background:white;padding:.7rem;color:#253b32;font:1.05rem/1.7 var(--font-quran)}
+.tas-custom-form-actions{display:flex;gap:.5rem}
+.tas-custom-form-actions button{flex:1}
+.tas-custom-form-actions .secondary{background:#e9eef0;color:#334c56}
+.tas-custom-list{display:grid;gap:.45rem}
+.tas-custom-item{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.6rem .7rem;border:1px solid #e4e8df;border-radius:11px;background:#fbfcfa}
+.tas-custom-item>span{min-width:0;flex:1;color:#2e4338;font:1rem/1.65 var(--font-quran);overflow-wrap:anywhere}
+.tas-custom-item>div{display:flex;gap:.3rem}
+.tas-custom-item button{min-height:36px;padding:.35rem .55rem;border:1px solid #d1dfd3;border-radius:8px;background:#edf3eb;color:#174f3b;font-size:.78rem}
+.tas-custom-item button.delete{background:#fff1ef;border-color:#f0d3cd;color:#9b4237}
+.tas-no-custom{margin:.2rem 0;color:#7c8981;font-size:.82rem}
+.tas-message{text-align:center;color:#486557;font-size:.85rem;line-height:1.6}
+.tasbih-tab .today-total{margin:1rem 0 0;text-align:center;color:#315b42;background:#edf3eb;border-radius:12px;padding:.75rem;font-size:.85rem}
+body[data-theme=dark] .tasbih-tab{background:#151d18;color:#e7eee9}
+body[data-theme=dark] .tas-toolbar-heading h2,body[data-theme=dark] .tas-toolbar-heading span,body[data-theme=dark] #rounds{color:#e7eee9}
+body[data-theme=dark] .tas-count-line strong{color:#ecf2e9}
+body[data-theme=dark] .tas-count-line span{color:#b2c0ba}
+body[data-theme=dark] .tas-count-hint{color:#bac7c0}
+body[data-theme=dark] .tas-settings{background:#1b261f;border-color:#3c5142}
+body[data-theme=dark] .tas-custom-item{background:#202e25;border-color:#3c5142}
+body[data-theme=dark] .tas-custom-item>span{color:#e7eee9}
+body[data-theme=dark] .tas-custom-form{background:#1d2b22;border-color:#3c5142}
+body[data-theme=dark] .tas-custom-form textarea{background:#17231c;color:#e7eee9;border-color:#52664f}
+@media(max-width:560px){
+ .tasbih-tab{padding-inline:.05rem}
+ .tas-dhikr-card{min-height:145px;margin-bottom:2.1rem;padding:.95rem .7rem;border-radius:30px}
+ .tas-dhikr-navigation strong{font-size:clamp(1.55rem,7vw,2.2rem)}
+ .tas-beads-button{height:205px;gap:7px}
+ .tas-bead{flex-basis:clamp(66px,20.5vw,88px);width:clamp(66px,20.5vw,88px)}
+ .tas-bottom-controls{margin-top:.5rem}
+ #undo{min-width:132px}
+ .tas-custom-item{align-items:flex-start;flex-direction:column}
+ .tas-custom-item>div{align-self:flex-end}
+}
