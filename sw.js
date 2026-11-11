@@ -1,9 +1,9 @@
 /* Service Worker — المصحف الشريف
  * ارفع رقم CACHE عند أي تغيير في الملفات أدناه ليحل الإصدار الجديد محل القديم. */
-const CACHE = "mushaf-pwa-v16";
+const CACHE = "mushaf-pwa-v17";
 const ASSETS = [
   "./", "./index.html", "./styles.css", "./app.js", "./features.js", "./manifest.webmanifest",
-  "./assets/icon.svg", "./assets/mushaf-icon.png", "./assets/icon-192.png", "./assets/icon-512.png", "./assets/maskable-512.png", "./assets/apple-touch-icon.png",
+  "./assets/icon.svg", "./assets/icon-192.png", "./assets/icon-512.png", "./assets/maskable-512.png", "./assets/apple-touch-icon.png",
   "./data/quran-uthmani.txt", "./data/mushaf-pages.json", "./data/adhkar-morning-evening.json",
   "./data/TANZIL-NOTICE.txt", "./data/ADHKAR-SOURCE.txt",
 ];
