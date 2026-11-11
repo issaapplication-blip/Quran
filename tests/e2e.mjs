@@ -34,6 +34,7 @@ try {
     ["/sw.js", "javascript"],
     ["/manifest.webmanifest", "application/manifest+json"],
     ["/assets/icon.svg", "image/svg+xml"],
+    ["/assets/mushaf-icon.png", "image/png"],
     ["/assets/icon-192.png", "image/png"],
     ["/assets/icon-512.png", "image/png"],
     ["/assets/maskable-512.png", "image/png"],
