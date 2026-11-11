@@ -148,6 +148,9 @@ function renderCustomDhikrList(){
 function renderTas(){
  $("count").textContent=ar(cnt);
  $("countTarget").textContent=target?"/"+ar(target):"/∞";
+ $("counterDial").setAttribute("aria-label","عدد التسبيحات "+cnt+" من "+(target||"دون هدف"));
+ $("targetProgress").textContent=target?ar(Math.min(cnt,target))+" / "+ar(target):ar(cnt)+" · بلا هدف";
+ $("targetBar").style.width=(target?Math.min(100,cnt/target*100):0)+"%";
  $("currentDhikr").textContent=currentDhikr();
  $("today").textContent="مجموع ما سبّحته اليوم: "+ar(today)+" مرة";
  $("rounds").textContent="الجولات : "+ar(target?Math.floor(cnt/target)+1:1);
