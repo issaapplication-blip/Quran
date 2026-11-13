@@ -252,6 +252,22 @@ document.addEventListener("touchmove",e=>{
 function clearPinch(){pinchStartDistance=0}
 document.addEventListener("touchend",e=>{if(e.touches.length<2)clearPinch()},{passive:true});
 document.addEventListener("touchcancel",clearPinch,{passive:true});
+/* التنقّل بين صفحات المصحف بالسحب الأفقي — يعمل في وضع الصفحة المنفردة فقط */
+let pageSwipeStart=null;
+$("mushafPage").addEventListener("touchstart",e=>{
+ if(readerMode!=="page"||e.touches.length!==1)return;
+ const t=e.touches[0];
+ pageSwipeStart={x:t.clientX,y:t.clientY};
+},{passive:true});
+$("mushafPage").addEventListener("touchend",e=>{
+ if(readerMode!=="page"||!pageSwipeStart||!e.changedTouches.length){pageSwipeStart=null;return}
+ const t=e.changedTouches[0],dx=t.clientX-pageSwipeStart.x,dy=t.clientY-pageSwipeStart.y;
+ pageSwipeStart=null;
+ if(Math.abs(dx)<48||Math.abs(dx)<Math.abs(dy)*1.25)return;
+ if(dx>0)go(page+1);else go(page-1);
+},{passive:true});
+$("mushafPage").addEventListener("touchcancel",()=>{pageSwipeStart=null},{passive:true});
+
 function setTheme(t){document.body.dataset.theme=t;document.querySelectorAll("[data-theme]").forEach(x=>x.classList.toggle("active",x.dataset.theme===t))}
 function applyPrefs(){let t=ls.get("mushaf-theme");if(["paper","cream","dark"].includes(t))setTheme(t);let z=parseFloat(ls.get("mushaf-size"));if(z>=1.2&&z<=2.8)setSize(z);setReaderMode(ls.get("mushaf-reader-mode")==="scroll"?"scroll":"page",false)}
 document.querySelectorAll("[data-theme]").forEach(b=>b.onclick=()=>{setTheme(b.dataset.theme);ls.set("mushaf-theme",b.dataset.theme)});
