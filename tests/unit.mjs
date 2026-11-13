@@ -51,6 +51,8 @@ assert.ok(!withBasmala.includes(9), "At-Tawbah has no basmala");
 const appJs = (await read("app.js")).toString("utf8");
 assert.ok(appJs.includes("splitBasmala"), "Reader must split the embedded basmala instead of adding a second one");
 assert.ok(appJs.includes("touchstart") && appJs.includes("touchmove") && appJs.includes("setReaderMode"), "Reader must support pinch zoom and continuous mode");
+assert.ok(appJs.includes('pageSwipeStart') && appJs.includes('if(dx>0)go(page+1);else go(page-1)'), "Mushaf page reader must navigate forward and backward with horizontal swipes");
+assert.ok(appJs.includes('Math.abs(dx)<Math.abs(dy)*1.25'), "Page swipe must ignore predominantly vertical scrolling gestures");
 assert.ok(appJs.includes('data-rendered="false"') && appJs.includes('el.dataset.rendered!=="true"'), "Continuous pages must render lazily for mobile performance");
 assert.ok(!appJs.includes('<p class="basmala">بِسْمِ'), "Reader must not hard-code an extra basmala line");
 
