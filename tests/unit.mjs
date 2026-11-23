@@ -48,6 +48,7 @@ const withBasmala = lines.filter(([s, a, t]) => a === "1" && strip(t).startsWith
 assert.equal(withBasmala.length, 113, "Tanzil text embeds the basmala in ayah 1 of 113 surahs (including Al-Fatiha)");
 assert.ok(!withBasmala.includes(9), "At-Tawbah has no basmala");
 const appJs = (await read("app.js")).toString("utf8");
+const featuresJs = (await read("features.js")).toString("utf8");
 assert.ok(appJs.includes("splitBasmala"), "Reader must split the embedded basmala instead of adding a second one");
 assert.ok(appJs.includes("touchstart") && appJs.includes("touchmove") && appJs.includes("setReaderMode"), "Reader must support pinch zoom and continuous mode");
 assert.ok(appJs.includes('data-rendered="false"') && appJs.includes('el.dataset.rendered!=="true"'), "Continuous pages must render lazily for mobile performance");
@@ -56,4 +57,20 @@ assert.ok(!appJs.includes('<p class="basmala">بِسْمِ'), "Reader must not h
 assert.ok(html.includes('id="azkarSearch"') && html.includes('id="azkarFavorites"') && html.includes('id="azkarSummary"'), "Adhkar search, favorites and progress summary must exist");
 assert.ok(html.includes('id="counterDial"') && html.includes('id="targetBar"') && html.includes('id="currentDhikr"'), "Tasbih visual counter and goal progress must exist");
 assert.ok(appJs.includes("AZ_FAV_KEY") && appJs.includes("renderTas") && appJs.includes("getAzkarProgress"), "Adhkar favorites and Tasbih progress logic must exist");
-console.log("PASS: single basmala per surah, Quran SHA-256, 604 pages, 30 juz, adhkar, manifest, app routes, Vercel headers, and JavaScript syntax.");
+
+// Regression guard for Codex review: phone heading is applied once to the dial;
+// the Qibla arm stays at its absolute bearing, giving the correct net qibla-heading angle.
+assert.ok(featuresJs.includes('elDial.style.transform = `rotate(${dialShown}deg)`'), "Compass dial must apply the phone heading correction once");
+assert.ok(featuresJs.includes('elArm.style.transform = `rotate(${qibla}deg)`'), "Qibla arm must retain its absolute bearing on the rotated dial");
+assert.ok(featuresJs.includes("Math.abs(angleDiff(qibla, heading)) <= 5"), "Compass alignment must compare absolute Qibla bearing with phone heading");
+
+// Regression guard for the overflow menu: its button must remain outside the primary nav,
+// and only primary navigation buttons carrying data-tab are wired to tab switching.
+const navStart = html.indexOf("<nav");
+const navEnd = html.indexOf("</nav>");
+const menuButton = html.indexOf('id="moreMenu"');
+assert.ok(menuButton >= 0 && navStart >= 0 && navEnd > navStart && (menuButton < navStart || menuButton > navEnd), "Overflow menu button must stay outside the primary nav");
+assert.ok(appJs.includes('document.querySelectorAll("nav button[data-tab]")'), "Only primary nav buttons with data-tab may switch tabs");
+assert.ok(featuresJs.includes('menuBtn.addEventListener("click", (e) => { e.stopPropagation(); setMenu(panel.hidden); })'), "Overflow menu click must not bubble into unrelated tab handlers");
+
+console.log("PASS: Quran source SHA-256, 604 pages, 30 juz, adhkar, manifest, app routes, service-worker headers, syntax, Qibla transform composition, and overflow-menu isolation.");
