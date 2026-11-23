@@ -34,6 +34,8 @@ function showTab(id) {
   window.scrollTo(0, 0);
   document.dispatchEvent(new CustomEvent("mushaf:tab", { detail: id }));
 }
+// The overflow control lives in the header, outside nav; stop bubbling so it cannot
+// be interpreted as a primary navigation action.
 menuBtn.addEventListener("click", (e) => { e.stopPropagation(); setMenu(panel.hidden); });
 document.addEventListener("click", (e) => { if (!panel.hidden && !panel.contains(e.target) && e.target !== menuBtn) setMenu(false); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) { setMenu(false); menuBtn.focus(); } });
@@ -88,6 +90,8 @@ function renderCompass() {
     return;
   }
   elStage.classList.remove("no-sensor");
+  // Apply heading compensation once to the whole dial. The Qibla arm below
+  // remains at its absolute bearing, so the net screen angle is qibla - heading.
   dialShown += angleDiff(-heading, dialShown);
   elDial.style.transform = `rotate(${dialShown}deg)`;
   const now = qibla !== null && Math.abs(angleDiff(qibla, heading)) <= 5;
@@ -182,7 +186,7 @@ const savedLoc = readJSON(LOC_KEY);
 if (savedLoc && Number.isFinite(savedLoc.lat) && Number.isFinite(savedLoc.lon)) setLocation(savedLoc, true);
 
 /* ============================== مواقيت الصلاة ============================== */
-const ISO = "AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ");
+const ISO = "AD AE AF AG AI AL AM AO AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GT GU GW GY HK HN HR HT HU ID IE IL IM IN IO IQ IR JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SM SN SO SR SS ST SV SX SY SZ TC TD TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW".split(" ");
 
 /* طريقة الحساب التلقائية حسب البلد (أرقام طرق AlAdhan). الباقي: رابطة العالم الإسلامي (3) */
 const METHOD_BY_COUNTRY = {
@@ -354,9 +358,6 @@ function useMyLocation() {
       : "تعذر تحديد موقعك. اختر البلد واكتب المدينة يدوياً.";
   }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
 }
-
-$("prayerForm").addEventListener("submit", (e) => { e.preventDefault(); loadByCity(); });
-btnGps.addEventListener("click", useMyLocation);
 
 /* عند أول فتح لصفحة المواقيت: أعد تحميل آخر اختيار محفوظ (الشبكة أولاً ثم المحفوظ) */
 let autoLoaded = false;
