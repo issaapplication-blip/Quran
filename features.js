@@ -34,6 +34,8 @@ function showTab(id) {
   window.scrollTo(0, 0);
   document.dispatchEvent(new CustomEvent("mushaf:tab", { detail: id }));
 }
+// The overflow control lives in the header, outside nav; stop bubbling so it cannot
+// be interpreted as a primary navigation action.
 menuBtn.addEventListener("click", (e) => { e.stopPropagation(); setMenu(panel.hidden); });
 document.addEventListener("click", (e) => { if (!panel.hidden && !panel.contains(e.target) && e.target !== menuBtn) setMenu(false); });
 document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !panel.hidden) { setMenu(false); menuBtn.focus(); } });
@@ -88,6 +90,8 @@ function renderCompass() {
     return;
   }
   elStage.classList.remove("no-sensor");
+  // Apply heading compensation once to the whole dial. The Qibla arm below
+  // remains at its absolute bearing, so the net screen angle is qibla - heading.
   dialShown += angleDiff(-heading, dialShown);
   elDial.style.transform = `rotate(${dialShown}deg)`;
   const now = qibla !== null && Math.abs(angleDiff(qibla, heading)) <= 5;
