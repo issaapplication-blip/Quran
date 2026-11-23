@@ -1,1 +1,52 @@
-const C="mushaf-pwa-v5",F=["./","./index.html","./styles.css","./app.js","./manifest.webmanifest","./assets/icon.svg","./assets/icon-192.png","./assets/icon-512.png","./data/quran-uthmani.txt","./data/mushaf-pages.json","./data/adhkar-morning-evening.json","./data/TANZIL-NOTICE.txt"];self.addEventListener("install",e=>e.waitUntil(caches.open(C).then(c=>c.addAll(F)).then(()=>self.skipWaiting())));self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(a=>Promise.all(a.filter(x=>x!==C).map(x=>caches.delete(x)))).then(()=>self.clients.claim())));self.addEventListener("fetch",e=>{let u=new URL(e.request.url);if(e.request.method!=="GET"||u.origin!==location.origin)return;e.respondWith(caches.match(e.request).then(h=>h||fetch(e.request).then(r=>{if(r.ok)caches.open(C).then(c=>c.put(e.request,r.clone()));return r}).catch(()=>h||Response.error())))});
+/* Service Worker — المصحف الشريف
+ * ارفع رقم CACHE عند أي تغيير في الملفات أدناه ليحل الإصدار الجديد محل القديم. */
+const CACHE = "mushaf-pwa-v14";
+const ASSETS = [
+  "./", "./index.html", "./styles.css", "./app.js", "./features.js", "./manifest.webmanifest",
+  "./assets/icon.svg", "./assets/icon-192.png", "./assets/icon-512.png", "./assets/maskable-512.png", "./assets/apple-touch-icon.png",
+  "./data/quran-uthmani.txt", "./data/mushaf-pages.json", "./data/adhkar-morning-evening.json",
+  "./data/TANZIL-NOTICE.txt", "./data/ADHKAR-SOURCE.txt",
+];
+self.addEventListener("install", (event) => {
+  event.waitUntil(
+    caches.open(CACHE)
+      .then((cache) => cache.addAll(ASSETS.map((url) => new Request(url, { cache: "reload" }))))
+      .then(() => self.skipWaiting())
+  );
+});
+self.addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((key) => key !== CACHE).map((key) => caches.delete(key))))
+      .then(() => self.clients.claim())
+  );
+});
+// Cache-first مع تحديث الخلفية. تُسجّل مهمة waitUntil أثناء حدث fetch نفسه.
+self.addEventListener("fetch", (event) => {
+  const request = event.request;
+  if (request.method !== "GET" || new URL(request.url).origin !== self.location.origin) return;
+
+  const cachePromise = caches.open(CACHE);
+  const networkPromise = fetch(request).then((response) => {
+    if (response && response.ok && response.type === "basic") {
+      return cachePromise.then((cache) => cache.put(request, response.clone())).then(() => response);
+    }
+    return response;
+  });
+
+  event.waitUntil(networkPromise.then(() => undefined).catch(() => undefined));
+  event.respondWith((async () => {
+    const cache = await cachePromise;
+    const cached = await cache.match(request, { ignoreSearch: true });
+    if (cached) return cached;
+    try {
+      const response = await networkPromise;
+      if (response) return response;
+    } catch {}
+    if (request.mode === "navigate") {
+      const home = await cache.match("./index.html");
+      if (home) return home;
+    }
+    return Response.error();
+  })());
+});
