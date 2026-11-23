@@ -359,6 +359,9 @@ function useMyLocation() {
   }, { enableHighAccuracy: false, timeout: 15000, maximumAge: 300000 });
 }
 
+$("prayerForm").addEventListener("submit", (e) => { e.preventDefault(); loadByCity(); });
+btnGps.addEventListener("click", useMyLocation);
+
 /* عند أول فتح لصفحة المواقيت: أعد تحميل آخر اختيار محفوظ (الشبكة أولاً ثم المحفوظ) */
 let autoLoaded = false;
 document.addEventListener("mushaf:tab", (e) => {
