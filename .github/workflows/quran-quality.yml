@@ -68,6 +68,9 @@ jobs:
       - name: Verify source data and app invariants
         run: npm test
 
+      - name: Generate PWA icons required by the HTTP smoke test
+        run: npm run build
+
       - name: Verify local offline-capable HTTP delivery
         run: npm run test:e2e
 
